@@ -8,6 +8,7 @@ services:
     ports:
       - "8000:8000"
     command: python run.py
+
   postgres:
     image: postgres:14.7-alpine
     restart: on-failure
@@ -36,6 +37,7 @@ services:
       - 5050:80
     volumes:
       - ./.docker/pgadmin/servers.json:/pgadmin4/servers.json
+
   minio:
     image: minio/minio:latest
     environment:
