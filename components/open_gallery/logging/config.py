@@ -1,10 +1,16 @@
+from contextvars import ContextVar
 from typing import Any
 
 from open_gallery.logging.settings import LoggingSettings
 from open_gallery.settings.app import AppSettings
 
 
-def create_logging_config(settings: LoggingSettings, app_settings: AppSettings) -> dict[str, Any]:
+def create_logging_config(
+    settings: LoggingSettings,
+    app_settings: AppSettings,
+    sequence_ctx: ContextVar[int],
+    real_ip_ctx: ContextVar[str],
+) -> dict[str, Any]:
     return {
         "version": 1,
         "disable_existing_loggers": False,
@@ -26,6 +32,8 @@ def create_logging_config(settings: LoggingSettings, app_settings: AppSettings) 
                 "stage": app_settings.stage.value,
                 "app_name": app_settings.name,
                 "json_ensure_ascii": False,
+                "sequence_ctx": sequence_ctx,
+                "real_ip_ctx": real_ip_ctx,
             },
         },
         "handlers": {

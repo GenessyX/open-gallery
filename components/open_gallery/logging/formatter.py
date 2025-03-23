@@ -1,10 +1,8 @@
 import logging
-import logging.config
+from contextvars import ContextVar
 from typing import TYPE_CHECKING, Any
 
 from pythonjsonlogger import jsonlogger
-
-from open_gallery.context import real_ip_ctx, sequence_ctx
 
 if TYPE_CHECKING:
     from open_gallery.logging.enums import ContextCallType, ContextEventType
@@ -16,11 +14,15 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):  # type: ignore[name-define
         *args,  # noqa: ANN002
         app_name: str,
         stage: str,
+        sequence_ctx: ContextVar[int],
+        real_ip_ctx: ContextVar[str],
         **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(*args, **kwargs)
         self.stage = stage
         self.app_name = app_name
+        self.sequence_ctx = sequence_ctx
+        self.real_ip_ctx = real_ip_ctx
 
     def add_fields(
         self,
@@ -34,11 +36,11 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):  # type: ignore[name-define
         initiator = f"{log_record.pop('module')}.{log_record.pop('funcName')}"
         log_record["initiator"] = initiator
 
-        sequence = sequence_ctx.get()
+        sequence = self.sequence_ctx.get()
         log_record["sequence_number"] = sequence
-        sequence_ctx.set(sequence + 1)
+        self.sequence_ctx.set(sequence + 1)
 
-        log_record["real_ip"] = real_ip_ctx.get()
+        log_record["real_ip"] = self.real_ip_ctx.get()
 
         call_type: "ContextCallType | None" = log_record.get("call_type")
         if call_type:
