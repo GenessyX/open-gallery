@@ -52,6 +52,7 @@ repos:
           - granian
           - uvicorn
           - fastapi
+          - python-json-logger
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.22.0
