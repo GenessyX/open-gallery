@@ -1,5 +1,16 @@
 # Open Gallery
 
+## project run
+
+uvicorn:
+```bash
+uv run python projects/api/run.py
+```
+granian:
+```bash
+WEB_SERVER=granian uv run python projects/api/run.py
+```
+
 ## project build
 
 ```bash

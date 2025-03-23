@@ -4,14 +4,13 @@ version = "0.1.0"
 description = "Open Gallery REST API"
 authors = [{ name = "g.kharitonov", email = "haritonovgleb123@gmail.com" }]
 dependencies = [
-
   "pydantic>=2.10.3",
   "pydantic-settings>=2.7.0",
-
-
   "sqlalchemy>=2.0.36",
   "alembic>=1.14.0",
-
+  "granian>=2.1.2",
+  "fastapi>=0.115.11",
+  "uvloop>=0.21.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -40,7 +39,7 @@ lint = [
   "ruff>=0.8.4",
 ]
 docs = ["mkdocs-material>=9.5.49", "mkdocs>=1.6.1"]
-local = ["basedpyright>=1.24.0"]
+local = ["basedpyright>=1.24.0", "granian[reload]>=2.1.2", "uvicorn>=0.34.0"]
 
 
 [tool.poe.tasks.html-cov]
