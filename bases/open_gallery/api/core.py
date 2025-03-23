@@ -5,7 +5,7 @@ from fastapi import APIRouter, FastAPI
 
 from open_gallery.api.identity.router import identity_router
 from open_gallery.api.settings import APISettings
-from open_gallery.context.core import real_ip_ctx, sequence_ctx
+from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
 from open_gallery.logging.config import create_logging_config
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
             settings.app,
             sequence_ctx,
             real_ip_ctx,
+            request_id_ctx,
         ),
     )
 

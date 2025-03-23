@@ -10,13 +10,20 @@ def create_logging_config(
     app_settings: AppSettings,
     sequence_ctx: ContextVar[int],
     real_ip_ctx: ContextVar[str],
+    request_id_ctx: ContextVar[str],
 ) -> dict[str, Any]:
     return {
         "version": 1,
         "disable_existing_loggers": False,
         "filters": {
-            "request_id": {"()": "open_gallery.logging.filters.RequestIdFilter"},
-            "sequence": {"()": "open_gallery.logging.filters.SequenceFilter"},
+            "request_id": {
+                "()": "open_gallery.logging.filters.RequestIdFilter",
+                "request_id_ctx": request_id_ctx,
+            },
+            "sequence": {
+                "()": "open_gallery.logging.filters.SequenceFilter",
+                "sequence_ctx": sequence_ctx,
+            },
         },
         "formatters": {
             "plain": {
@@ -32,7 +39,6 @@ def create_logging_config(
                 "stage": app_settings.stage.value,
                 "app_name": app_settings.name,
                 "json_ensure_ascii": False,
-                "sequence_ctx": sequence_ctx,
                 "real_ip_ctx": real_ip_ctx,
             },
         },

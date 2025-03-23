@@ -14,14 +14,12 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):  # type: ignore[name-define
         *args,  # noqa: ANN002
         app_name: str,
         stage: str,
-        sequence_ctx: ContextVar[int],
         real_ip_ctx: ContextVar[str],
         **kwargs,  # noqa: ANN003
     ) -> None:
         super().__init__(*args, **kwargs)
         self.stage = stage
         self.app_name = app_name
-        self.sequence_ctx = sequence_ctx
         self.real_ip_ctx = real_ip_ctx
 
     def add_fields(
@@ -35,10 +33,6 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):  # type: ignore[name-define
 
         initiator = f"{log_record.pop('module')}.{log_record.pop('funcName')}"
         log_record["initiator"] = initiator
-
-        sequence = self.sequence_ctx.get()
-        log_record["sequence_number"] = sequence
-        self.sequence_ctx.set(sequence + 1)
 
         log_record["real_ip"] = self.real_ip_ctx.get()
 
