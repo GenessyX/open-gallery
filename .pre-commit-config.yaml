@@ -53,6 +53,7 @@ repos:
           - uvicorn
           - fastapi
           - python-json-logger
+          - orjson
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.22.0
