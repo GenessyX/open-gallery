@@ -3,6 +3,7 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from open_gallery.logging.settings import LoggingSettings
 from open_gallery.persistence.settings import DatabaseSettings
 from open_gallery.settings.app import AppSettings
 from open_gallery.settings.server import ServerSettings
@@ -19,6 +20,7 @@ class APISettings(BaseSettings):
     app: AppSettings = AppSettings()
     server: ServerSettings = ServerSettings()
     database: DatabaseSettings = DatabaseSettings()
+    logging: LoggingSettings = LoggingSettings()
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILES,
