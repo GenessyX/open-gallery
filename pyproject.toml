@@ -14,6 +14,7 @@ dependencies = [
   "python-json-logger>=3.3.0",
   "orjson>=3.10.15",
   "uuid7>=0.1.0",
+  "dishka>=1.5.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -43,6 +44,7 @@ lint = [
 ]
 docs = ["mkdocs-material>=9.5.49", "mkdocs>=1.6.1"]
 local = ["basedpyright>=1.24.0", "granian[reload]>=2.1.2", "uvicorn>=0.34.0"]
+debug = ["pysnooper>=1.2.1"]
 
 
 [tool.poe.tasks.html-cov]
