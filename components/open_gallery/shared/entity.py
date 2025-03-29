@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass, field
-from typing import Any, override
+from typing import Any, Self, TypeVar, override
 from uuid import UUID
 
 from uuid_extensions import uuid7str
@@ -10,7 +10,7 @@ from open_gallery.shared.sentinel import NO_ARG
 
 class EntityId(UUID):
     @classmethod
-    def generate(cls) -> "EntityId":
+    def generate(cls) -> Self:
         return cls(hex=uuid7str())
 
 
@@ -30,3 +30,7 @@ class Entity:
         super().__setattr__(name, value)
         if name != "updated_at":
             object.__setattr__(self, "updated_at", datetime.datetime.now(datetime.UTC))
+
+
+EntityIdT = TypeVar("EntityIdT", bound=EntityId)
+EntityT = TypeVar("EntityT", bound=Entity)

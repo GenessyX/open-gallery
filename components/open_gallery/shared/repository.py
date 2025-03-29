@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic
 
-from open_gallery.shared.entity import Entity, EntityId
-
-EntityT = TypeVar("EntityT", bound=Entity)
-EntityIdT = TypeVar("EntityIdT", bound=EntityId)
+from open_gallery.shared.entity import EntityIdT, EntityT
 
 
 class Repository(ABC, Generic[EntityIdT, EntityT]):
