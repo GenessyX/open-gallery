@@ -16,6 +16,14 @@ dependencies = [
   "sqlalchemy>=2.0.36",
   "alembic>=1.14.0",
   "granian>=2.1.2",
+  "fastapi>=0.115.11",
+  "uvloop>=0.21.0",
+  "python-json-logger>=3.3.0",
+  "orjson>=3.10.15",
+  "uuid7>=0.1.0",
+  "dishka>=1.5.1",
+  "asyncpg>=0.30.0",
+  "psycopg2-binary>=2.9.10",
 ]
 
 [tool.hatch.build]
@@ -25,3 +33,6 @@ dev-mode-dirs = ["../../components", "../../bases"]
 
 [tool.polylith.bricks]
 "../../bases/open_gallery/api" = "open_gallery/api"
+
+[dependency-groups]
+local = ["psycopg2>=2.9.10"]
