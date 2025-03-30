@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import Request
 
-from open_gallery.identity.exceptions import UserError, UserExistsError
+from open_gallery.identity.exceptions import UserError, UserExistsError, WeakPasswordError
 from open_gallery.shared_api.exceptions import APIError, to_exception_handler
 
 
@@ -11,6 +11,8 @@ def user_error_handler(_: Request, exception: UserError) -> APIError:
     match exception:
         case UserExistsError():
             status_code = HTTPStatus.CONFLICT
+        case WeakPasswordError():
+            status_code = HTTPStatus.BAD_REQUEST
         case _:
             status_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
