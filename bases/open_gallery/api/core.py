@@ -7,14 +7,18 @@ from dishka import make_async_container
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from fastapi import APIRouter, FastAPI
 
+from open_gallery.api.identity.exceptions import user_error_handler
 from open_gallery.api.ioc.settings import SettingsProvider
 from open_gallery.api.settings import APISettings
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
+from open_gallery.identity.exceptions import UserError
 from open_gallery.identity.ioc import IdentityUsecasesProvider
 from open_gallery.logging.config import create_logging_config
 from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
 from open_gallery.persistence.tables.base import mapper_registry
 from open_gallery.persistence.tables.mappers import bind_mappers
+from open_gallery.shared.exceptions import DomainError
+from open_gallery.shared_api.exceptions import domain_error_handler
 from open_gallery.shared_api.types import enable_types_support
 
 enable_types_support()
@@ -64,6 +68,9 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     api_v1.include_router(identity_router)
 
     app.include_router(api_v1)
+
+    app.add_exception_handler(DomainError, domain_error_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(UserError, user_error_handler)  # type: ignore[arg-type]
 
     logger.info("Application initialized")
 
