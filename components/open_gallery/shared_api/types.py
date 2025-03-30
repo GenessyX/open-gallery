@@ -22,6 +22,9 @@ def add_type_support(cls: type, json_schema: JsonSchemaValue) -> None:
         cls: type,
         value: str,
     ) -> Any:  # noqa: ANN401
+        if isinstance(value, cls):
+            return value
+
         return cls(value)
 
     @classmethod  # type: ignore[misc]
