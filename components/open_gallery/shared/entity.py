@@ -28,7 +28,7 @@ class Entity:
     @override
     def __setattr__(self, name: str, value: Any, /) -> None:
         super().__setattr__(name, value)
-        if name != "updated_at":
+        if name != "updated_at" and name in self.__dataclass_fields__:
             object.__setattr__(self, "updated_at", datetime.datetime.now(datetime.UTC))
 
 
