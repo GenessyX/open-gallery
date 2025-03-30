@@ -18,7 +18,7 @@ class DatabaseSettings(DsnSettings):
     pool_recycle: datetime.timedelta = datetime.timedelta(hours=1)
     pool_size: int = 20
     max_overflow: int = 10
-    password: str = "password"  # noqa: S105
+    password: str = "postgres"  # noqa: S105
     user: str = "postgres"
     schema: str = "public"
 

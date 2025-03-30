@@ -2,6 +2,8 @@ from typing import override
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from open_gallery.identity.repository import UserRepository
+from open_gallery.identity.uow import IdentityUnitOfWork
 from open_gallery.shared.uow import UnitOfWork
 
 
@@ -25,3 +27,9 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
     @override
     async def close(self) -> None:
         await self._session.close()
+
+
+class SQLAlchemyIdentityUnitOfWork(SQLAlchemyUnitOfWork, IdentityUnitOfWork):
+    def __init__(self, session: AsyncSession, user_repository: UserRepository) -> None:
+        super().__init__(session)
+        self.users = user_repository
