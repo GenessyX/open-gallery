@@ -1,9 +1,11 @@
 import dataclasses
 import inspect
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, cast, get_origin, override
 
 from pydantic_core import PydanticUndefined
+
+from open_gallery.shared.types import SecretValue
 
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
@@ -16,13 +18,26 @@ from open_gallery.shared_api.model import APIModel
 
 
 def transform_dataclass_to_response_model(cls: type["DataclassInstance"]) -> type[BaseModel]:
-    class TransitModel(cls):  # type: ignore[valid-type, misc]
-        pass
+    field_defs = [
+        (f.name, f.type, f.default if f.default is not f.default_factory else f.default_factory)
+        for f in dataclasses.fields(cls)
+        if get_origin(f.type) is not SecretValue
+    ]
+
+    TransitModel = cast(  # noqa: N806
+        "type[DataclassInstance]",
+        dataclasses.make_dataclass(
+            "TransitModel",
+            field_defs,
+            kw_only=True,
+        ),
+    )
 
     for field_name, field_info in TransitModel.__dataclass_fields__.items():
         if hasattr(TransitModel, field_name):
             # NOTE: For some reason dataclass field with default value produces class attribute
-            # with the name of field and value equal to default value.
+            # with the name of field and value equal to default value, and Pydantic tries to
+            # get all attributes on model to identify if default value is set.
             # So, for example:
             # ```
             # @dataclasses.dataclass
@@ -52,6 +67,7 @@ class APIRouter(_APIRouter):
         response_model: Any = None,
         **kwargs: Any,
     ) -> None:
+        response_model = response_model or endpoint.__annotations__.get("return", str)
         if inspect.isclass(response_model) and dataclasses.is_dataclass(response_model):
             return super().add_api_route(
                 path,
