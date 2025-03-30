@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from http import HTTPStatus
 from typing import Any, TypeVar, assert_never
@@ -7,6 +8,8 @@ from fastapi.responses import JSONResponse
 
 from open_gallery.shared.exceptions import DomainError
 from open_gallery.shared_api.model import APIModel
+
+logger = logging.getLogger(__name__)
 
 
 class APIError(Exception):
@@ -45,6 +48,7 @@ def to_exception_handler(
 def domain_error_handler(_: Request, exception: DomainError) -> APIError:
     match exception:
         case DomainError():
+            logger.error("Unhandled domain error", exc_info=exception)
             status_code = HTTPStatus.INTERNAL_SERVER_ERROR
         case _:
             assert_never()
