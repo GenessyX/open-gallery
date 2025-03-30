@@ -11,11 +11,11 @@ class RegisterUserUsecase(Usecase):
         self._uow = uow
 
     @override
-    async def __call__(self, email: str, password: str) -> User:
+    async def __call__(self, email: Email, password: SecretValue[str]) -> User:
         async with self._uow as uow:
             user = User(
-                email=Email(email),
-                password=SecretValue(password),
+                email=email,
+                password=password,
                 role=UserRole.USER,
             )
             await uow.users.save(user)
