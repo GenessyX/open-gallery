@@ -1,11 +1,20 @@
 import logging
 import logging.config
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
+from dishka import make_async_container
+from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from fastapi import APIRouter, FastAPI
 
+from open_gallery.api.ioc.settings import SettingsProvider
 from open_gallery.api.settings import APISettings
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
+from open_gallery.identity.ioc import IdentityUsecasesProvider
 from open_gallery.logging.config import create_logging_config
+from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
+from open_gallery.persistence.tables.base import mapper_registry
+from open_gallery.persistence.tables.mappers import bind_mappers
 from open_gallery.shared_api.types import enable_types_support
 
 enable_types_support()
@@ -13,9 +22,26 @@ enable_types_support()
 logger = logging.getLogger(__name__)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    yield
+    await app.state.dishka_container.close()
+
+
 def create_app(settings: APISettings | None = None) -> FastAPI:
     if not settings:
         settings = APISettings()
+
+    container = make_async_container(
+        SettingsProvider(),
+        DatabaseProvider(),
+        RepositoriesProvider(),
+        UnitsOfWorkProvider(),
+        IdentityUsecasesProvider(),
+        FastapiProvider(),
+    )
+
+    bind_mappers(mapper_registry)
 
     logging.config.dictConfig(
         create_logging_config(
@@ -28,6 +54,8 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     )
 
     app = FastAPI(openapi_url=settings.server.openapi_url)
+
+    setup_dishka(container=container, app=app)
 
     api_v1 = APIRouter(prefix="/api/v1")
 
