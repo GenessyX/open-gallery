@@ -9,3 +9,10 @@ class UserExistsError(UserError):
 
     def __init__(self, email: str) -> None:
         super().__init__(self.message_template.format(email=email))
+
+
+class WeakPasswordError(UserError):
+    message_template = "Password is too weak"
+
+    def __init__(self) -> None:
+        super().__init__(self.message_template)

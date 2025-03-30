@@ -5,7 +5,7 @@ from fastapi import Body
 
 from open_gallery.api.identity.schemas import RegisterRequestSchema
 from open_gallery.identity.entities import User
-from open_gallery.identity.exceptions import UserExistsError
+from open_gallery.identity.exceptions import UserExistsError, WeakPasswordError
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
@@ -21,7 +21,12 @@ async def test() -> str:
 
 @identity_router.post(
     "/register",
-    responses=define_possible_errors({409: UserExistsError}),
+    responses=define_possible_errors(
+        {
+            400: [WeakPasswordError],
+            409: [UserExistsError],
+        },
+    ),
 )
 @inject
 async def register_endpoint(
