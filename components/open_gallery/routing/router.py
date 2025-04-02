@@ -1,5 +1,6 @@
 import dataclasses
 import inspect
+import typing
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, cast, get_origin, override
 
@@ -57,6 +58,25 @@ def transform_dataclass_to_response_model(cls: type["DataclassInstance"]) -> typ
     return type(cls.__name__, (TransitModel, APIModel), {})
 
 
+def transform_response_model(cls: type) -> type:
+    if inspect.isclass(cls) and dataclasses.is_dataclass(cls):
+        return transform_dataclass_to_response_model(cls)
+    origin = typing.get_origin(cls)
+    if not origin:
+        return cls
+
+    overwrite_args = []
+    generic_args = typing.get_args(cls)
+    for arg in generic_args:
+        if inspect.isclass(arg) and dataclasses.is_dataclass(arg):
+            _arg = transform_dataclass_to_response_model(arg)
+        else:
+            _arg = arg
+        overwrite_args.append(_arg)
+
+    return cast("type", origin[*overwrite_args])
+
+
 class APIRouter(_APIRouter):
     @override
     def add_api_route(
@@ -68,6 +88,7 @@ class APIRouter(_APIRouter):
         **kwargs: Any,
     ) -> None:
         response_model = response_model or endpoint.__annotations__.get("return", str)
+        response_model = transform_response_model(response_model)
         if inspect.isclass(response_model) and dataclasses.is_dataclass(response_model):
             return super().add_api_route(
                 path,
