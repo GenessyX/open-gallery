@@ -60,7 +60,7 @@ def domain_error_handler(_: Request, exception: DomainError) -> APIError:
 
 
 def define_possible_errors(
-    exceptions_map: dict[int, list[type[DomainError]]],
+    exceptions_map: dict[HTTPStatus, list[type[DomainError]]],
 ) -> Any:  # noqa: ANN401
     out_map = {}
     for status_code, exceptions in exceptions_map.items():

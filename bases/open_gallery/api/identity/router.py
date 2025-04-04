@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
@@ -6,7 +7,12 @@ from fastapi import Body, Depends
 from open_gallery.api.identity.schemas import RegisterRequestSchema
 from open_gallery.identity.dtos import TokensPair
 from open_gallery.identity.entities import User
-from open_gallery.identity.exceptions import UserExistsError, WeakPasswordError
+from open_gallery.identity.exceptions import (
+    AuthorizationError,
+    InvalidCredentialsError,
+    UserExistsError,
+    WeakPasswordError,
+)
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
@@ -26,8 +32,8 @@ async def test() -> str:
     "/register",
     responses=define_possible_errors(
         {
-            400: [WeakPasswordError],
-            409: [UserExistsError],
+            HTTPStatus.BAD_REQUEST: [WeakPasswordError],
+            HTTPStatus.CONFLICT: [UserExistsError],
         },
     ),
 )
@@ -41,6 +47,11 @@ async def register_endpoint(
 
 @identity_router.post(
     "/login",
+    responses=define_possible_errors(
+        {
+            HTTPStatus.UNAUTHORIZED: [InvalidCredentialsError],
+        },
+    ),
 )
 @inject
 async def login_endpoint(
@@ -50,7 +61,14 @@ async def login_endpoint(
     return await login(email=request_body.email, password=request_body.password)
 
 
-@identity_router.post("/me")
+@identity_router.post(
+    "/me",
+    responses=define_possible_errors(
+        {
+            HTTPStatus.UNAUTHORIZED: [AuthorizationError],
+        },
+    ),
+)
 @inject
 async def show_me_endpoint(user: Annotated[User, Depends(authorized)]) -> User:
     return user
