@@ -23,3 +23,10 @@ class AuthorizationError(UserError):
 
     def __init__(self) -> None:
         super().__init__(self.message_template)
+
+
+class InvalidCredentialsError(UserError):
+    message_template = "Invalid credentials"
+
+    def __init__(self) -> None:
+        super().__init__(self.message_template)

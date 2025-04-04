@@ -4,6 +4,7 @@ from open_gallery.dishka.providers.settings import BaseSettingsProvider
 from open_gallery.identity.dtos import AccessTokenPayload, RefreshTokenPayload
 from open_gallery.identity.services.tokens import TokensService
 from open_gallery.identity.settings import IdentitySettings, JWTSettings
+from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.jwt.impl import JwcryptoJWTService
 from open_gallery.jwt.interface import JWTService
@@ -40,3 +41,4 @@ class IdentityUsecasesProvider(Provider):
     scope = Scope.REQUEST
 
     register = provide(RegisterUserUsecase)
+    login = provide(LoginUserUsecase)
