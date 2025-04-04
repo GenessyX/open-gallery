@@ -2,6 +2,7 @@ import os
 from typing import override
 
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 from open_gallery.hashing.interface import Hasher
 
@@ -17,4 +18,7 @@ class Argon2Hasher(Hasher):
 
     @override
     def verify_password(self, password: str, hashed_password: str) -> bool:
-        return self._argon.verify(hash=hashed_password, password=password)
+        try:
+            return self._argon.verify(hash=hashed_password, password=password)
+        except VerifyMismatchError:
+            return False
