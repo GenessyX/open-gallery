@@ -1,7 +1,10 @@
-from open_gallery.api.settings import APISettings
+from open_gallery.shared_api.types import enable_types_support
+
+enable_types_support()
+
+from open_gallery.api.settings import APISettings  # noqa: E402
 
 settings = APISettings()
-
 
 if __name__ == "__main__":
     if settings.web_server == "granian":
