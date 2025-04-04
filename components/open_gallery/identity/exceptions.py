@@ -16,3 +16,10 @@ class WeakPasswordError(UserError):
 
     def __init__(self) -> None:
         super().__init__(self.message_template)
+
+
+class AuthorizationError(UserError):
+    message_template = "Not authenticated"
+
+    def __init__(self) -> None:
+        super().__init__(self.message_template)
