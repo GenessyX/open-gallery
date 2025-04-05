@@ -1,10 +1,10 @@
 from typing import override
 
-from open_gallery.identity.dtos import TokensPair
+from open_gallery.identity.dtos import RefreshTokenPayload, TokensPair
 from open_gallery.identity.exceptions import InvalidCredentialsError
 from open_gallery.identity.services.tokens import TokensService
 from open_gallery.identity.uow import IdentityUnitOfWork
-from open_gallery.jwt.interface import SerializedToken
+from open_gallery.jwt.interface import JWTService, SerializedToken
 from open_gallery.shared.types import SecretValue
 from open_gallery.shared.use_case import Usecase
 
@@ -14,13 +14,17 @@ class RefreshTokenUsecase(Usecase):
         self,
         uow: IdentityUnitOfWork,
         tokens_service: TokensService,
+        jwt_service: JWTService[RefreshTokenPayload],
     ) -> None:
         self._uow = uow
         self._tokens_service = tokens_service
+        self._jwt_service = jwt_service
 
     @override
     async def __call__(self, token: SecretValue[SerializedToken]) -> TokensPair:
         async with self._uow as uow:
+            self._jwt_service.decode(token.get_secret_value())
+
             old_hashed_refresh_token = self._tokens_service.get_refresh_token_hash(token.get_secret_value())
             user = await uow.users.get_by_refresh_token(old_hashed_refresh_token)
 

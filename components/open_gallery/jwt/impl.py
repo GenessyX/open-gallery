@@ -5,9 +5,9 @@ from typing import Literal, cast, override
 from adaptix import Retort, dumper, loader
 from jwcrypto.common import JWException
 from jwcrypto.jwk import JWK
-from jwcrypto.jwt import JWT
+from jwcrypto.jwt import JWT, JWTExpired
 
-from open_gallery.jwt.exceptions import JWTError
+from open_gallery.jwt.exceptions import ExpiredTokenError, TokenDecodeError
 from open_gallery.jwt.interface import JWTService, PayloadT, SerializedToken
 
 retort = Retort(
@@ -54,8 +54,10 @@ class JwcryptoJWTService(JWTService[PayloadT]):
     def decode(self, serialized_token: SerializedToken) -> PayloadT:
         try:
             token = JWT(jwt=serialized_token, key=self._key, expected_type="JWS")
+        except JWTExpired as err:
+            raise ExpiredTokenError from err
         except (JWException, ValueError) as err:
-            raise JWTError from err
+            raise TokenDecodeError from err
 
         return retort.load(
             json.loads(token.claims),
