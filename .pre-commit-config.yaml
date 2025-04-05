@@ -58,6 +58,7 @@ repos:
           - dishka
           - argon2-cffi
           - adaptix
+          - types-aiobotocore[s3]
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.22.0
