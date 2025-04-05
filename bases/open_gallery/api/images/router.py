@@ -6,6 +6,7 @@ from fastapi import Depends, UploadFile
 
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
+from open_gallery.images.exceptions import InvalidFileError
 from open_gallery.images.use_cases.upload import UploadImageUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
@@ -21,4 +22,6 @@ async def upload_image_endpoint(
     file: UploadFile,
     upload_image: FromDishka[UploadImageUsecase],
 ) -> Image:
-    return await upload_image(actor=actor, file=file.file)
+    if not file.content_type:
+        raise InvalidFileError
+    return await upload_image(actor=actor, file=file.file, mime_type=file.content_type)
