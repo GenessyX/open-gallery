@@ -24,6 +24,8 @@ dependencies = [
   "dishka>=1.5.1",
   "asyncpg>=0.30.0",
   "psycopg2-binary>=2.9.10",
+  "adaptix>=3.0.0b9",
+  "jwcrypto>=1.5.6",
 ]
 
 [tool.hatch.build]
