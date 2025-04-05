@@ -15,10 +15,11 @@ class Image(Entity):
     uploaded_by: User
 
     @classmethod
-    def create(cls, base_path: Path, uploaded_by: User) -> "Image":
+    def create(cls, base_path: Path, uploaded_by: User, file_extension: str | None) -> "Image":
         image_id = ImageId(EntityId.generate())
+        file_name = f"{image_id}{file_extension}" if file_extension else str(image_id)
         return Image(
             id=image_id,
-            path=str(base_path / str(image_id)),
+            path=str(base_path / file_name),
             uploaded_by=uploaded_by,
         )

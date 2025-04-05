@@ -29,12 +29,13 @@ class S3FileStorage(FileStorage):
             yield s3
 
     @override
-    async def upload(self, path: str, file: BinaryIO) -> ETag:
+    async def upload(self, path: str, file: BinaryIO, mime_type: str) -> ETag:
         async with self._s3 as s3:
             response = await s3.put_object(
                 Bucket=self._settings.bucket,
                 Key=path,
                 Body=file,
+                ContentType=mime_type,
                 ACL="public-read",
             )
 
