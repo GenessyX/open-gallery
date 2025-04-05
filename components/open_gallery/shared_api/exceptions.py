@@ -45,6 +45,7 @@ def to_exception_handler(
     return wrapped_handler
 
 
+@to_exception_handler
 def domain_error_handler(_: Request, exception: DomainError) -> APIError:
     match exception:
         case DomainError():
