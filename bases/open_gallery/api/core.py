@@ -13,13 +13,14 @@ from open_gallery.api.settings import APISettings
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
 from open_gallery.hashing.ioc import HasherProvider
 from open_gallery.identity.exceptions import UserError
-from open_gallery.identity.ioc import IdentityUsecasesProvider
+from open_gallery.identity.ioc import IdentityModuleProvider, IdentitySettingsProvider, IdentityUsecasesProvider
 from open_gallery.logging.config import create_logging_config
 from open_gallery.passwords.ioc import PasswordsProvider
 from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
 from open_gallery.persistence.tables.base import mapper_registry
 from open_gallery.persistence.tables.mappers import bind_mappers
 from open_gallery.shared.exceptions import DomainError
+from open_gallery.shared_api.authentication.ioc import AuthorizationProvider
 from open_gallery.shared_api.exceptions import domain_error_handler
 from open_gallery.shared_api.types import enable_types_support
 
@@ -45,7 +46,10 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         UnitsOfWorkProvider(),
         HasherProvider(),
         PasswordsProvider(),
+        IdentitySettingsProvider(),
+        IdentityModuleProvider(),
         IdentityUsecasesProvider(),
+        AuthorizationProvider(),
         FastapiProvider(),
     )
 
