@@ -12,12 +12,12 @@ class Argon2Hasher(Hasher):
         self._argon = PasswordHasher()
 
     @override
-    def hash_password(self, password: str) -> str:
+    def hash(self, password: str) -> str:
         salt = os.urandom(16)
         return self._argon.hash(password, salt=salt)
 
     @override
-    def verify_password(self, password: str, hashed_password: str) -> bool:
+    def verify(self, password: str, hashed_password: str) -> bool:
         try:
             return self._argon.verify(hash=hashed_password, password=password)
         except VerifyMismatchError:

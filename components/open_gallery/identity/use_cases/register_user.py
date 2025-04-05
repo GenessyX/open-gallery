@@ -34,7 +34,7 @@ class RegisterUserUsecase(Usecase):
             if not self._verifier.verify(password.get_secret_value()):
                 raise WeakPasswordError
 
-            hashed_password = self._hasher.hash_password(password.get_secret_value())
+            hashed_password = self._hasher.hash(password.get_secret_value())
             user = User(
                 email=email,
                 password=SecretValue(hashed_password),

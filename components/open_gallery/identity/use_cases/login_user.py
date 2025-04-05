@@ -22,7 +22,7 @@ class LoginUserUsecase(Usecase):
             if not user:
                 raise InvalidCredentialsError
 
-            valid_password = self._hasher.verify_password(
+            valid_password = self._hasher.verify(
                 password.get_secret_value(),
                 user.password.get_secret_value(),
             )
