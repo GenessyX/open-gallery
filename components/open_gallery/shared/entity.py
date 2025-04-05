@@ -32,5 +32,10 @@ class Entity:
             object.__setattr__(self, "updated_at", datetime.datetime.now(datetime.UTC))
 
 
+@dataclass(kw_only=True)
+class SubEntity:
+    created_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.UTC))
+
+
 EntityIdT = TypeVar("EntityIdT", bound=EntityId)
 EntityT = TypeVar("EntityT", bound=Entity)
