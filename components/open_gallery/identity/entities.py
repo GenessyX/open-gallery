@@ -38,3 +38,17 @@ class User(Entity):
 
     def add_verification_code(self, code: str) -> None:
         self.verification_codes.append(VerificationCode(code=code))
+
+    def verify(self, code: str) -> bool:
+        verification_code = self.get_code(code)
+        if verification_code is None:
+            return False
+        self.verification_codes.remove(verification_code)
+        self.verified = True
+        return True
+
+    def get_code(self, code: str) -> VerificationCode | None:
+        return next(
+            (verification_code for verification_code in self.verification_codes if verification_code.code == code),
+            None,
+        )

@@ -7,6 +7,7 @@ from open_gallery.identity.services.verification import VerificationService
 from open_gallery.identity.settings import IdentitySettings, JWTSettings
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
+from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.jwt.impl import JwcryptoJWTService
 from open_gallery.jwt.interface import JWTService
 
@@ -44,3 +45,4 @@ class IdentityUsecasesProvider(Provider):
 
     register = provide(RegisterUserUsecase)
     login = provide(LoginUserUsecase)
+    verify = provide(VerifyUserUsecase)

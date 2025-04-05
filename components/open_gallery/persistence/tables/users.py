@@ -60,6 +60,7 @@ def bind_mappers(mapper_registry: registry) -> None:
                 VerificationCode,
                 uselist=True,
                 lazy="selectin",
+                cascade="save-update, merge, delete, delete-orphan",
             ),
         },
     )

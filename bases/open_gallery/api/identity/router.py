@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import Body, Depends
+from fastapi import Body, Depends, Query
 
 from open_gallery.api.identity.schemas import RegisterRequestSchema
 from open_gallery.identity.dtos import TokensPair
@@ -15,6 +15,7 @@ from open_gallery.identity.exceptions import (
 )
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
+from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
@@ -61,7 +62,7 @@ async def login_endpoint(
     return await login(email=request_body.email, password=request_body.password)
 
 
-@identity_router.post(
+@identity_router.get(
     "/me",
     responses=define_possible_errors(
         {
@@ -72,3 +73,12 @@ async def login_endpoint(
 @inject
 async def show_me_endpoint(user: Annotated[User, Depends(authorized)]) -> User:
     return user
+
+
+@identity_router.get("/verify")
+@inject
+async def verify_user_endpoint(
+    code: Annotated[str, Query()],
+    verify: FromDishka[VerifyUserUsecase],
+) -> bool:
+    return await verify(code=code)
