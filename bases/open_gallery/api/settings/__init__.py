@@ -3,6 +3,7 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from open_gallery.file_storage.impl.s3.settings import S3Settings
 from open_gallery.identity.settings import IdentitySettings
 from open_gallery.logging.settings import LoggingSettings
 from open_gallery.persistence.settings import DatabaseSettings
@@ -24,6 +25,7 @@ class APISettings(BaseSettings):
     database: DatabaseSettings = DatabaseSettings()
     logging: LoggingSettings = LoggingSettings()
     identity: IdentitySettings = IdentitySettings()
+    s3: S3Settings = S3Settings()
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILES,
