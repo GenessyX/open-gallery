@@ -73,7 +73,7 @@ def define_possible_errors(
     *,
     authorized: bool = False,
 ) -> Any:  # noqa: ANN401
-    exceptions_map = exceptions_map | authorization_errors() if authorized else {}
+    exceptions_map = exceptions_map | (authorization_errors() if authorized else {})
     out_map = {}
     for status_code, exceptions in exceptions_map.items():
         examples = {}
