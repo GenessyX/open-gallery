@@ -19,7 +19,7 @@ from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
-from open_gallery.shared_api.exceptions import authorization_errors, define_possible_errors
+from open_gallery.shared_api.exceptions import define_possible_errors
 
 identity_router = APIRouter(prefix="/identity", route_class=LoggingRoute)
 
@@ -65,7 +65,8 @@ async def login_endpoint(
 @identity_router.get(
     "/me",
     responses=define_possible_errors(
-        authorization_errors(),
+        {},
+        authorized=True,
     ),
 )
 @inject
