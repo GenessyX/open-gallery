@@ -6,6 +6,8 @@ from typing import Any, TypeVar, assert_never
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
+from open_gallery.identity.exceptions import AuthorizationError
+from open_gallery.jwt.exceptions import ExpiredTokenError, TokenDecodeError
 from open_gallery.shared.exceptions import DomainError
 from open_gallery.shared_api.model import APIModel
 
@@ -60,9 +62,18 @@ def domain_error_handler(_: Request, exception: DomainError) -> APIError:
     )
 
 
+def authorization_errors() -> dict[HTTPStatus, list[type[DomainError]]]:
+    return {
+        HTTPStatus.UNAUTHORIZED: [AuthorizationError, TokenDecodeError, ExpiredTokenError],
+    }
+
+
 def define_possible_errors(
     exceptions_map: dict[HTTPStatus, list[type[DomainError]]],
+    *,
+    authorized: bool = False,
 ) -> Any:  # noqa: ANN401
+    exceptions_map = exceptions_map | authorization_errors() if authorized else {}
     out_map = {}
     for status_code, exceptions in exceptions_map.items():
         examples = {}

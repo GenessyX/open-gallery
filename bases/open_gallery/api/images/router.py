@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Annotated
 
 from dishka import FromDishka
@@ -11,11 +12,20 @@ from open_gallery.images.use_cases.upload import UploadImageUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
+from open_gallery.shared_api.exceptions import define_possible_errors
 
 images_router = APIRouter(prefix="/images", route_class=LoggingRoute)
 
 
-@images_router.post("/upload")
+@images_router.post(
+    "/upload",
+    responses=define_possible_errors(
+        {
+            HTTPStatus.UNPROCESSABLE_ENTITY: [InvalidFileError],
+        },
+        authorized=True,
+    ),
+)
 @inject
 async def upload_image_endpoint(
     actor: Annotated[User, Depends(authorized)],

@@ -8,7 +8,6 @@ from open_gallery.api.identity.schemas import RefreshTokenRequestSchema, Registe
 from open_gallery.identity.dtos import TokensPair
 from open_gallery.identity.entities import User
 from open_gallery.identity.exceptions import (
-    AuthorizationError,
     InvalidCredentialsError,
     UserExistsError,
     WeakPasswordError,
@@ -20,7 +19,7 @@ from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
-from open_gallery.shared_api.exceptions import define_possible_errors
+from open_gallery.shared_api.exceptions import authorization_errors, define_possible_errors
 
 identity_router = APIRouter(prefix="/identity", route_class=LoggingRoute)
 
@@ -66,9 +65,7 @@ async def login_endpoint(
 @identity_router.get(
     "/me",
     responses=define_possible_errors(
-        {
-            HTTPStatus.UNAUTHORIZED: [AuthorizationError],
-        },
+        authorization_errors(),
     ),
 )
 @inject
@@ -76,7 +73,14 @@ async def show_me_endpoint(user: Annotated[User, Depends(authorized)]) -> User:
     return user
 
 
-@identity_router.get("/verify")
+@identity_router.get(
+    "/verify",
+    responses=define_possible_errors(
+        {
+            HTTPStatus.UNAUTHORIZED: [InvalidCredentialsError],
+        },
+    ),
+)
 @inject
 async def verify_user_endpoint(
     code: Annotated[str, Query()],
@@ -85,7 +89,14 @@ async def verify_user_endpoint(
     return await verify(code=code)
 
 
-@identity_router.post("/refresh")
+@identity_router.post(
+    "/refresh",
+    responses=define_possible_errors(
+        {
+            HTTPStatus.UNAUTHORIZED: [InvalidCredentialsError],
+        },
+    ),
+)
 @inject
 async def refresh_token_endpoint(
     request_body: Annotated[RefreshTokenRequestSchema, Body()],
