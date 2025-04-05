@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from open_gallery.identity.repository import UserRepository
 from open_gallery.identity.uow import IdentityUnitOfWork
+from open_gallery.images.repository import ImageRepository
+from open_gallery.images.uow import ImagesUnitOfWork
 from open_gallery.shared.uow import UnitOfWork
 
 
@@ -33,3 +35,9 @@ class SQLAlchemyIdentityUnitOfWork(SQLAlchemyUnitOfWork, IdentityUnitOfWork):
     def __init__(self, session: AsyncSession, user_repository: UserRepository) -> None:
         super().__init__(session)
         self.users = user_repository
+
+
+class SQLAlchemyImagesUnitOfWork(SQLAlchemyUnitOfWork, ImagesUnitOfWork):
+    def __init__(self, session: AsyncSession, image_repository: ImageRepository) -> None:
+        super().__init__(session)
+        self.images = image_repository
