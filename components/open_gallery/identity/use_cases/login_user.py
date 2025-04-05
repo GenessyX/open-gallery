@@ -23,7 +23,7 @@ class LoginUserUsecase(Usecase):
     @override
     async def __call__(self, email: Email, password: SecretValue[str]) -> TokensPair:
         async with self._uow as uow:
-            user = await uow.users.get_by_email(email)
+            user = await uow.users.get_verified_by_email(email)
             if not user:
                 raise InvalidCredentialsError
 

@@ -22,6 +22,12 @@ class VerifyUserUsecase(Usecase):
             if not is_valid:
                 raise InvalidCredentialsError
 
+            duplicate_users = await uow.users.get_by_email(user.email)
+
+            for duplicate_user in duplicate_users:
+                if duplicate_user.id != user.id:
+                    await uow.users.delete(duplicate_user.id)
+
             await uow.users.save(user)
 
         return True

@@ -1,6 +1,6 @@
 from typing import override
 
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager
 
@@ -9,7 +9,7 @@ from open_gallery.identity.entities import RefreshToken, User, UserId, Verificat
 from open_gallery.identity.repository import UserRepository
 from open_gallery.persistence.repository import SQLAlchemyRepository
 from open_gallery.persistence.tables.users import refresh_tokens, users, verification_codes
-from open_gallery.shared.types import SecretValue
+from open_gallery.shared.types import Email, SecretValue
 
 
 class SQLAlchemyUserRepository(SQLAlchemyRepository[UserId, User], UserRepository):
@@ -17,8 +17,14 @@ class SQLAlchemyUserRepository(SQLAlchemyRepository[UserId, User], UserRepositor
         super().__init__(session, table=users, entity=User)
 
     @override
-    async def get_by_email(self, email: str) -> User | None:
+    async def get_by_email(self, email: str) -> list[User]:
         stmt = select(User).where(users.c.email == email)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    @override
+    async def get_verified_by_email(self, email: Email) -> User | None:
+        stmt = select(User).where(and_(users.c.email == email, users.c.verified.is_(True)))
         result = await self._session.execute(stmt)
         return result.scalar()
 

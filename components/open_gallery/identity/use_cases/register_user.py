@@ -30,7 +30,7 @@ class RegisterUserUsecase(Usecase):
     @override
     async def __call__(self, email: Email, password: SecretValue[str]) -> TokensPair:
         async with self._uow as uow:
-            existing = await uow.users.get_by_email(email=email)
+            existing = await uow.users.get_verified_by_email(email=email)
             if existing:
                 raise UserExistsError(email)
 
