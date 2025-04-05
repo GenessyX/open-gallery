@@ -10,12 +10,15 @@ from fastapi import APIRouter, FastAPI
 from open_gallery.api.exceptions import jwt_error_handler
 from open_gallery.api.identity.exceptions import user_error_handler
 from open_gallery.api.identity.router import identity_router
+from open_gallery.api.images.router import images_router
 from open_gallery.api.ioc.settings import SettingsProvider
 from open_gallery.api.settings import APISettings
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
+from open_gallery.file_storage.ioc import FileStorageProvider
 from open_gallery.hashing.ioc import HasherProvider
 from open_gallery.identity.exceptions import UserError
 from open_gallery.identity.ioc import IdentityModuleProvider, IdentitySettingsProvider, IdentityUsecasesProvider
+from open_gallery.images.ioc import ImageUsecasesProvider
 from open_gallery.jwt.exceptions import JWTError
 from open_gallery.logging.config import create_logging_config
 from open_gallery.passwords.ioc import PasswordsProvider
@@ -49,6 +52,8 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         IdentitySettingsProvider(),
         IdentityModuleProvider(),
         IdentityUsecasesProvider(),
+        FileStorageProvider(),
+        ImageUsecasesProvider(),
         AuthorizationProvider(),
         FastapiProvider(),
     )
@@ -72,6 +77,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     api_v1 = APIRouter(prefix="/api/v1")
 
     api_v1.include_router(identity_router)
+    api_v1.include_router(images_router)
 
     app.include_router(api_v1)
 
