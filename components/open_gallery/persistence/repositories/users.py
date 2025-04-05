@@ -4,10 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager
 
-from open_gallery.identity.entities import User, UserId, VerificationCode
+from open_gallery.hashing.interface import HashedValue
+from open_gallery.identity.entities import RefreshToken, User, UserId, VerificationCode
 from open_gallery.identity.repository import UserRepository
 from open_gallery.persistence.repository import SQLAlchemyRepository
-from open_gallery.persistence.tables.users import users, verification_codes
+from open_gallery.persistence.tables.users import refresh_tokens, users, verification_codes
+from open_gallery.shared.types import SecretValue
 
 
 class SQLAlchemyUserRepository(SQLAlchemyRepository[UserId, User], UserRepository):
@@ -30,6 +32,20 @@ class SQLAlchemyUserRepository(SQLAlchemyRepository[UserId, User], UserRepositor
             )
             .where(verification_codes.c.code == code)
             .options(contains_eager(User.verification_codes))  # type: ignore[arg-type]
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+    @override
+    async def get_by_refresh_token(self, hashed_token: SecretValue[HashedValue]) -> User | None:
+        stmt = (
+            select(User)
+            .join(
+                RefreshToken,
+                onclause=users.c.id == refresh_tokens.c.user_id,
+            )
+            .where(refresh_tokens.c.token_hash == hashed_token)
+            .options(contains_eager(User.refresh_tokens))  # type: ignore[arg-type]
         )
         result = await self._session.execute(stmt)
         return result.scalar()

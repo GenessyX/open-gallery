@@ -1,6 +1,6 @@
 from typing import override
 
-from open_gallery.hashing.interface import Hasher
+from open_gallery.hashing.interface import SaltHasher
 from open_gallery.identity.dtos import TokensPair
 from open_gallery.identity.entities import User, UserRole
 from open_gallery.identity.exceptions import UserExistsError, WeakPasswordError
@@ -16,13 +16,13 @@ class RegisterUserUsecase(Usecase):
     def __init__(
         self,
         uow: IdentityUnitOfWork,
-        hasher: Hasher,
+        password_hasher: SaltHasher,
         verifier: PasswordComplexityVerifier,
         tokens_service: TokensService,
         verification_service: VerificationService,
     ) -> None:
         self._uow = uow
-        self._hasher = hasher
+        self._password_hasher = password_hasher
         self._verifier = verifier
         self._tokens_service = tokens_service
         self._verification_service = verification_service
@@ -37,7 +37,7 @@ class RegisterUserUsecase(Usecase):
             if not self._verifier.verify(password.get_secret_value()):
                 raise WeakPasswordError
 
-            hashed_password = self._hasher.hash(password.get_secret_value())
+            hashed_password = self._password_hasher.hash(password.get_secret_value())
             user = User(
                 email=email,
                 password=SecretValue(hashed_password),
@@ -46,7 +46,7 @@ class RegisterUserUsecase(Usecase):
 
             tokens_pair = self._tokens_service.generate_tokens(user)
 
-            hashed_refresh_token = self._hasher.hash(tokens_pair.refresh_token)
+            hashed_refresh_token = self._tokens_service.get_refresh_token_hash(tokens_pair.refresh_token)
             user.add_refresh_token(hashed_refresh_token)
 
             verification_code = self._verification_service.generate()

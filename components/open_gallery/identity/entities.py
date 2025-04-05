@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import NewType
 
+from open_gallery.hashing.interface import HashedValue
 from open_gallery.shared.entity import Entity, EntityId, SubEntity
 from open_gallery.shared.types import Email, SecretValue
 
@@ -15,7 +16,7 @@ class UserRole(str, Enum):
 
 @dataclass(kw_only=True)
 class RefreshToken(SubEntity):
-    token_hash: SecretValue[str]
+    token_hash: SecretValue[HashedValue]
 
 
 @dataclass(kw_only=True)
@@ -35,6 +36,16 @@ class User(Entity):
 
     def add_refresh_token(self, token_hash: str) -> None:
         self.refresh_tokens.append(RefreshToken(token_hash=SecretValue(token_hash)))
+
+    def delete_refresh_token(self, token_hash: str) -> bool:
+        target_token = next(
+            (token for token in self.refresh_tokens if token.token_hash.get_secret_value() == token_hash),
+            None,
+        )
+        if target_token is None:
+            return False
+        self.refresh_tokens.remove(target_token)
+        return True
 
     def add_verification_code(self, code: str) -> None:
         self.verification_codes.append(VerificationCode(code=code))

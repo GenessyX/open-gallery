@@ -1,7 +1,8 @@
+from open_gallery.hashing.interface import Hasher
 from open_gallery.identity.dtos import AccessTokenPayload, RefreshTokenPayload, TokensPair
 from open_gallery.identity.entities import User
 from open_gallery.identity.settings import TokensSettings
-from open_gallery.jwt.interface import JWTService
+from open_gallery.jwt.interface import JWTService, SerializedToken
 
 
 class TokensService:
@@ -10,10 +11,12 @@ class TokensService:
         access_token_jwt_service: JWTService[AccessTokenPayload],
         refresh_token_jwt_service: JWTService[RefreshTokenPayload],
         settings: TokensSettings,
+        hasher: Hasher,
     ) -> None:
         self._access_token_jwt_service = access_token_jwt_service
         self._refresh_token_jwt_service = refresh_token_jwt_service
         self._settings = settings
+        self._hasher = hasher
 
     def generate_tokens(self, user: User) -> TokensPair:
         access_token = self._access_token_jwt_service.encode(
@@ -30,3 +33,6 @@ class TokensService:
             expires_in=self._settings.refresh_token_ttl,
         )
         return TokensPair(access_token=access_token, refresh_token=refresh_token)
+
+    def get_refresh_token_hash(self, token: SerializedToken) -> str:
+        return self._hasher.hash(token)

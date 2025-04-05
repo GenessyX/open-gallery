@@ -4,7 +4,7 @@ from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import Body, Depends, Query
 
-from open_gallery.api.identity.schemas import RegisterRequestSchema
+from open_gallery.api.identity.schemas import RefreshTokenRequestSchema, RegisterRequestSchema
 from open_gallery.identity.dtos import TokensPair
 from open_gallery.identity.entities import User
 from open_gallery.identity.exceptions import (
@@ -14,6 +14,7 @@ from open_gallery.identity.exceptions import (
     WeakPasswordError,
 )
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
+from open_gallery.identity.use_cases.refresh_token import RefreshTokenUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
@@ -82,3 +83,12 @@ async def verify_user_endpoint(
     verify: FromDishka[VerifyUserUsecase],
 ) -> bool:
     return await verify(code=code)
+
+
+@identity_router.post("/refresh")
+@inject
+async def refresh_token_endpoint(
+    request_body: Annotated[RefreshTokenRequestSchema, Body()],
+    refresh: FromDishka[RefreshTokenUsecase],
+) -> TokensPair:
+    return await refresh(request_body.refresh_token)
