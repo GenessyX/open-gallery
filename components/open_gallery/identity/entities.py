@@ -30,8 +30,8 @@ class User(Entity):
     email: Email
     password: SecretValue[str]
     role: UserRole
-    refresh_tokens: list[RefreshToken] = field(default_factory=list)
-    verification_codes: list[VerificationCode] = field(default_factory=list)
+    refresh_tokens: list[RefreshToken] = field(default_factory=list, repr=False)
+    verification_codes: list[VerificationCode] = field(default_factory=list, repr=False)
     verified: bool = False
 
     def add_refresh_token(self, token_hash: SecretValue[HashedValue]) -> None:
