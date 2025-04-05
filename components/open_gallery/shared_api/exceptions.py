@@ -85,7 +85,7 @@ def define_possible_errors(
                 },
             }
         out_map[status_code] = {
-            "description": "| ".join([exc.__name__ for exc in exceptions]),
+            "description": " | ".join([exc.__name__ for exc in exceptions]),
             "content": {"application/json": {"examples": examples}},
         }
 
