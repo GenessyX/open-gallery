@@ -18,12 +18,30 @@ from pydantic import BaseModel
 from open_gallery.shared_api.model import APIModel
 
 
+def create_fields(cls: type["DataclassInstance"]) -> list[tuple[str, type | Any, Any]]:
+    field_defs: list[tuple[str, type | Any, Any]] = []
+    for field in dataclasses.fields(cls):
+        if get_origin(field.type) is SecretValue or field.metadata.get("exclude", False) or not field.repr:
+            continue
+
+        type_ = (
+            transform_dataclass_to_response_model(field.type)
+            if dataclasses.is_dataclass(field.type) and inspect.isclass(field.type)
+            else field.type
+        )
+
+        field_defs.append(
+            (
+                field.name,
+                type_,
+                field.default if field.default is not field.default_factory else field.default_factory,
+            ),
+        )
+    return field_defs
+
+
 def transform_dataclass_to_response_model(cls: type["DataclassInstance"]) -> type[BaseModel]:
-    field_defs = [
-        (f.name, f.type, f.default if f.default is not f.default_factory else f.default_factory)
-        for f in dataclasses.fields(cls)
-        if get_origin(f.type) is not SecretValue
-    ]
+    field_defs = create_fields(cls)
 
     TransitModel = cast(  # noqa: N806
         "type[DataclassInstance]",
