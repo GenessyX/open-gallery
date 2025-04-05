@@ -1,8 +1,9 @@
-from open_gallery.hashing.interface import Hasher
+from open_gallery.hashing.interface import HashedValue, Hasher
 from open_gallery.identity.dtos import AccessTokenPayload, RefreshTokenPayload, TokensPair
 from open_gallery.identity.entities import User
 from open_gallery.identity.settings import TokensSettings
 from open_gallery.jwt.interface import JWTService, SerializedToken
+from open_gallery.shared.types import SecretValue
 
 
 class TokensService:
@@ -34,5 +35,5 @@ class TokensService:
         )
         return TokensPair(access_token=access_token, refresh_token=refresh_token)
 
-    def get_refresh_token_hash(self, token: SerializedToken) -> str:
-        return self._hasher.hash(token)
+    def get_refresh_token_hash(self, token: SerializedToken) -> SecretValue[HashedValue]:
+        return SecretValue(self._hasher.hash(token))

@@ -22,7 +22,7 @@ class RefreshTokenUsecase(Usecase):
     async def __call__(self, token: SecretValue[SerializedToken]) -> TokensPair:
         async with self._uow as uow:
             old_hashed_refresh_token = self._tokens_service.get_refresh_token_hash(token.get_secret_value())
-            user = await uow.users.get_by_refresh_token(SecretValue(old_hashed_refresh_token))
+            user = await uow.users.get_by_refresh_token(old_hashed_refresh_token)
 
             if not user:
                 raise InvalidCredentialsError

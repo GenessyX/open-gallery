@@ -34,12 +34,12 @@ class User(Entity):
     verification_codes: list[VerificationCode] = field(default_factory=list)
     verified: bool = False
 
-    def add_refresh_token(self, token_hash: str) -> None:
-        self.refresh_tokens.append(RefreshToken(token_hash=SecretValue(token_hash)))
+    def add_refresh_token(self, token_hash: SecretValue[HashedValue]) -> None:
+        self.refresh_tokens.append(RefreshToken(token_hash=token_hash))
 
-    def delete_refresh_token(self, token_hash: str) -> bool:
+    def delete_refresh_token(self, token_hash: SecretValue[HashedValue]) -> bool:
         target_token = next(
-            (token for token in self.refresh_tokens if token.token_hash.get_secret_value() == token_hash),
+            (token for token in self.refresh_tokens if token.token_hash == token_hash),
             None,
         )
         if target_token is None:
