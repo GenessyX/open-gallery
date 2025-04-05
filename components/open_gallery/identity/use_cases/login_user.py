@@ -30,4 +30,10 @@ class LoginUserUsecase(Usecase):
             if not valid_password:
                 raise InvalidCredentialsError
 
-            return self._tokens_service.generate_tokens(user)
+            tokens = self._tokens_service.generate_tokens(user)
+
+            hashed_refresh_token = self._hasher.hash(tokens.refresh_token)
+
+            user.add_refresh_token(hashed_refresh_token)
+
+        return tokens

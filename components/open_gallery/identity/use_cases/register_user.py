@@ -43,6 +43,10 @@ class RegisterUserUsecase(Usecase):
 
             tokens_pair = self._tokens_service.generate_tokens(user)
 
+            hashed_refresh_token = self._hasher.hash(tokens_pair.refresh_token)
+
+            user.add_refresh_token(hashed_refresh_token)
+
             await uow.users.save(user)
 
         return tokens_pair

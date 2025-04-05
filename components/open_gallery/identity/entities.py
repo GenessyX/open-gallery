@@ -26,3 +26,6 @@ class User(Entity):
     role: UserRole
     refresh_tokens: list[RefreshToken] = field(default_factory=list)
     verified: bool = False
+
+    def add_refresh_token(self, token_hash: str) -> None:
+        self.refresh_tokens.append(RefreshToken(token_hash=SecretValue(token_hash)))
