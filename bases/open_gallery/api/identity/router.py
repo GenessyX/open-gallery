@@ -21,7 +21,7 @@ from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
 from open_gallery.shared_api.exceptions import define_possible_errors
 
-identity_router = APIRouter(prefix="/identity", route_class=LoggingRoute)
+identity_router = APIRouter(prefix="/identity", route_class=LoggingRoute, tags=["Identity"])
 
 
 @identity_router.get("")

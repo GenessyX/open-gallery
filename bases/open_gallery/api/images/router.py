@@ -14,7 +14,7 @@ from open_gallery.routing.router import APIRouter
 from open_gallery.shared_api.authentication.security import authorized
 from open_gallery.shared_api.exceptions import define_possible_errors
 
-images_router = APIRouter(prefix="/images", route_class=LoggingRoute)
+images_router = APIRouter(prefix="/images", route_class=LoggingRoute, tags=["Images"])
 
 
 @images_router.post(
