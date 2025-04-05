@@ -3,6 +3,7 @@ from dishka import Provider, Scope, provide
 from open_gallery.dishka.providers.settings import BaseSettingsProvider
 from open_gallery.identity.dtos import AccessTokenPayload, RefreshTokenPayload
 from open_gallery.identity.services.tokens import TokensService
+from open_gallery.identity.services.verification import VerificationService
 from open_gallery.identity.settings import IdentitySettings, JWTSettings
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
@@ -35,6 +36,7 @@ class IdentityModuleProvider(Provider):
         )
 
     tokens_service = provide(TokensService)
+    verification_service = provide(VerificationService)
 
 
 class IdentityUsecasesProvider(Provider):
