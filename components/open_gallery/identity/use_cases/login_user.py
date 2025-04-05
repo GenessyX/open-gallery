@@ -36,4 +36,6 @@ class LoginUserUsecase(Usecase):
 
             user.add_refresh_token(hashed_refresh_token)
 
+            await uow.users.save(user)
+
         return tokens
