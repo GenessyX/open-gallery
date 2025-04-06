@@ -9,6 +9,9 @@ class Repository(ABC, Generic[EntityIdT, EntityT]):
     async def get(self, entity_id: EntityIdT) -> EntityT | None: ...
 
     @abstractmethod
+    async def get_many(self, entity_ids: list[EntityIdT]) -> list[EntityT]: ...
+
+    @abstractmethod
     async def delete(self, entity_id: EntityIdT) -> None: ...
 
     @abstractmethod

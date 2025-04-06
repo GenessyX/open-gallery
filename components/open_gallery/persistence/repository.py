@@ -28,3 +28,9 @@ class SQLAlchemyRepository(Repository[EntityIdT, EntityT]):
     async def save(self, entity: EntityT) -> EntityT:
         self._session.add(entity)
         return entity
+
+    @override
+    async def get_many(self, entity_ids: list[EntityIdT]) -> list[EntityT]:
+        stmt = select(self._entity).where(self._table.c.id.in_(entity_ids))
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())

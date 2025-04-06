@@ -1,0 +1,26 @@
+from open_gallery.identity.entities import User
+from open_gallery.publications.entities import Comment, PublicationId
+from open_gallery.publications.exceptions import PublicationNotFoundError
+from open_gallery.publications.uow import PublicationsUnitOfWork
+
+
+class AddPublicationCommentUsecase:
+    def __init__(self, uow: PublicationsUnitOfWork) -> None:
+        self._uow = uow
+
+    async def __call__(self, publication_id: PublicationId, text: str, actor: User) -> Comment:
+        async with self._uow as uow:
+            publication = await uow.publications.get(publication_id)
+
+            if not publication:
+                raise PublicationNotFoundError(publication_id)
+
+            comment = Comment(
+                text=text,
+                author=actor,
+            )
+            publication.comments.append(comment)
+
+            await uow.publications.save(publication)
+
+        return comment
