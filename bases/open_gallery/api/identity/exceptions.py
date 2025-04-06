@@ -5,6 +5,7 @@ from fastapi import Request
 from open_gallery.identity.exceptions import (
     AuthorizationError,
     InvalidCredentialsError,
+    PermissionsError,
     UserError,
     UserExistsError,
     WeakPasswordError,
@@ -21,6 +22,8 @@ def user_error_handler(_: Request, exception: UserError) -> APIError:
             status_code = HTTPStatus.BAD_REQUEST
         case AuthorizationError() | InvalidCredentialsError():
             status_code = HTTPStatus.UNAUTHORIZED
+        case PermissionsError():
+            status_code = HTTPStatus.FORBIDDEN
         case _:
             status_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
