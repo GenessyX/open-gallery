@@ -9,6 +9,7 @@ from open_gallery.identity.entities import User
 from open_gallery.publications.dtos import CreatePublicationDto
 from open_gallery.publications.entities import Comment, Publication, PublicationId
 from open_gallery.publications.use_cases.add_comment import AddPublicationCommentUsecase
+from open_gallery.publications.use_cases.approve import ApprovePublicationUsecase
 from open_gallery.publications.use_cases.create import CreatePublicationUsecase
 from open_gallery.publications.use_cases.get import GetPublicationUsecase
 from open_gallery.publications.use_cases.get_list import GetPublicationsListUsecase
@@ -82,3 +83,13 @@ async def react_to_publication_endpoint(
         request_body.reaction_type,
         actor,
     )
+
+
+@publications_router.post("/{publication_id}/approve")
+@inject
+async def approve_publication_endpoint(
+    publication_id: Annotated[PublicationId, Path()],
+    actor: Annotated[User, Depends(authorized)],
+    approve_publication: FromDishka[ApprovePublicationUsecase],
+) -> Publication:
+    return await approve_publication(publication_id, actor)

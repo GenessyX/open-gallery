@@ -40,3 +40,6 @@ class Publication(Entity):
     likes: list[Like] = field(default_factory=list)
     views: list[View] = field(default_factory=list)
     tags: list[Tag] = field(default_factory=list, repr=False)
+
+    def approve(self, actor: User) -> None:
+        self.approved_by = actor
