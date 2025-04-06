@@ -2,9 +2,10 @@ from open_gallery.identity.entities import User
 from open_gallery.publications.entities import Comment, PublicationId
 from open_gallery.publications.exceptions import PublicationNotFoundError
 from open_gallery.publications.uow import PublicationsUnitOfWork
+from open_gallery.shared.use_case import Usecase
 
 
-class AddPublicationCommentUsecase:
+class AddPublicationCommentUsecase(Usecase):
     def __init__(self, uow: PublicationsUnitOfWork) -> None:
         self._uow = uow
 

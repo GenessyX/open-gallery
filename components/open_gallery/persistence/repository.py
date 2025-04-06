@@ -20,6 +20,12 @@ class SQLAlchemyRepository(Repository[EntityIdT, EntityT]):
         return result.scalar()
 
     @override
+    async def get_list(self, limit: int, offset: int) -> list[EntityT]:
+        stmt = select(self._entity).order_by(self._table.c.created_at.desc()).limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    @override
     async def delete(self, entity_id: EntityIdT) -> None:
         stmt = delete(self._table).where(self._table.c.id == entity_id)
         await self._session.execute(stmt)
