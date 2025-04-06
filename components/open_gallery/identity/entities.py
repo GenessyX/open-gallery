@@ -11,6 +11,7 @@ UserId = NewType("UserId", EntityId)
 
 class UserRole(str, Enum):
     USER = "user"
+    MODERATOR = "moderator"
     ADMIN = "admin"
 
 
