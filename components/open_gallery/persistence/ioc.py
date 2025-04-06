@@ -10,14 +10,18 @@ from open_gallery.images.uow import ImagesUnitOfWork
 from open_gallery.persistence.database import Database
 from open_gallery.persistence.repositories.images import SQLAlchemyImageRepository
 from open_gallery.persistence.repositories.publications import SQLAlchemyPublicationRepository
+from open_gallery.persistence.repositories.tags import SQLAlchemyTagRepository
 from open_gallery.persistence.repositories.users import SQLAlchemyUserRepository
 from open_gallery.persistence.uow import (
     SQLAlchemyIdentityUnitOfWork,
     SQLAlchemyImagesUnitOfWork,
     SQLAlchemyPublicationsUnitOfWork,
+    SQLAlchemyTagsUnitOfWork,
 )
 from open_gallery.publications.repository import PublicationRepository
 from open_gallery.publications.uow import PublicationsUnitOfWork
+from open_gallery.tags.repository import TagRepository
+from open_gallery.tags.uow import TagsUnitOfWork
 
 
 class DatabaseProvider(Provider):
@@ -38,6 +42,7 @@ class RepositoriesProvider(Provider):
     users = provide(SQLAlchemyUserRepository, provides=UserRepository)
     images = provide(SQLAlchemyImageRepository, provides=ImageRepository)
     publications = provide(SQLAlchemyPublicationRepository, provides=PublicationRepository)
+    tags = provide(SQLAlchemyTagRepository, provides=TagRepository)
 
 
 class UnitsOfWorkProvider(Provider):
@@ -46,3 +51,4 @@ class UnitsOfWorkProvider(Provider):
     identity = provide(SQLAlchemyIdentityUnitOfWork, provides=IdentityUnitOfWork)
     images = provide(SQLAlchemyImagesUnitOfWork, provides=ImagesUnitOfWork)
     publications = provide(SQLAlchemyPublicationsUnitOfWork, provides=PublicationsUnitOfWork)
+    tags = provide(SQLAlchemyTagsUnitOfWork, provides=TagsUnitOfWork)

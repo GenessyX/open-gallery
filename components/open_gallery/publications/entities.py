@@ -39,7 +39,7 @@ class Publication(Entity):
     comments: list[Comment] = field(default_factory=list)
     likes: list[Like] = field(default_factory=list)
     views: list[View] = field(default_factory=list)
-    tags: list[Tag] = field(default_factory=list, repr=False)
+    tags: list[Tag] = field(default_factory=list)
 
     def approve(self, actor: User) -> None:
         self.approved_by = actor

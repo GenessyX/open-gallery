@@ -10,12 +10,15 @@ from open_gallery.persistence.tables.keys import (
     PublicationCommentPrimaryKeyType,
     PublicationForeignKey,
     PublicationPrimaryKeyType,
+    TagForeignKey,
+    TagPrimaryKeyType,
     UserForeignKey,
     UserPrimaryKeyType,
 )
 from open_gallery.persistence.tables.users import users
 from open_gallery.persistence.type_decorators.datetime import UTCDateTime
 from open_gallery.publications.entities import Comment, Like, Publication, View
+from open_gallery.tags.entities import Tag
 
 publications = Table(
     "publications",
@@ -60,6 +63,13 @@ publication_views = Table(
     Column("publication_id", PublicationPrimaryKeyType, PublicationForeignKey(), primary_key=True),
     Column("user_id", UserPrimaryKeyType, UserForeignKey(), primary_key=True),
     Column("created_at", UTCDateTime, server_default=func.now()),
+)
+
+publication_tags = Table(
+    "publication_tags",
+    mapper_registry.metadata,
+    Column("publication_id", PublicationPrimaryKeyType, PublicationForeignKey(), primary_key=True),
+    Column("tag_id", TagPrimaryKeyType, TagForeignKey(), primary_key=True),
 )
 
 
@@ -146,6 +156,12 @@ def bind_mappers(mapper_registry: registry) -> None:
                 uselist=True,
                 lazy="selectin",
                 secondary=publication_images,
+            ),
+            "tags": relationship(
+                Tag,
+                uselist=True,
+                lazy="selectin",
+                secondary=publication_tags,
             ),
         },
     )

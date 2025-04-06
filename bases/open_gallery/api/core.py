@@ -15,6 +15,7 @@ from open_gallery.api.images.router import images_router
 from open_gallery.api.ioc.settings import SettingsProvider
 from open_gallery.api.publications.router import publications_router
 from open_gallery.api.settings import APISettings
+from open_gallery.api.tags.router import tags_router
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
 from open_gallery.file_storage.ioc import FileStorageProvider
 from open_gallery.hashing.ioc import HasherProvider
@@ -32,6 +33,7 @@ from open_gallery.publications.ioc import PublicationUsecasesProvider
 from open_gallery.shared.exceptions import DomainError
 from open_gallery.shared_api.authentication.ioc import AuthorizationProvider
 from open_gallery.shared_api.exceptions import domain_error_handler
+from open_gallery.tags.ioc import TagUsecasesProvider
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         FileStorageProvider(),
         ImageUsecasesProvider(),
         PublicationUsecasesProvider(),
+        TagUsecasesProvider(),
         AuthorizationProvider(),
         FastapiProvider(),
     )
@@ -84,6 +87,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     api_v1.include_router(identity_router)
     api_v1.include_router(images_router)
     api_v1.include_router(publications_router)
+    api_v1.include_router(tags_router)
 
     app.include_router(api_v1)
 

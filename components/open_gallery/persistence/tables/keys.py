@@ -15,3 +15,6 @@ PublicationForeignKey: _ForeignKey = lambda: ForeignKey("publications.id", ondel
 
 PublicationCommentPrimaryKeyType = UUID
 PublicationCommentForeignKey: _ForeignKey = lambda: ForeignKey("publication_comments.id", ondelete="CASCADE")  # noqa: E731
+
+TagPrimaryKeyType = UUID
+TagForeignKey: _ForeignKey = lambda: ForeignKey("tags.id", ondelete="CASCADE")  # noqa: E731

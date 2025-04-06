@@ -9,6 +9,8 @@ from open_gallery.images.uow import ImagesUnitOfWork
 from open_gallery.publications.repository import PublicationRepository
 from open_gallery.publications.uow import PublicationsUnitOfWork
 from open_gallery.shared.uow import UnitOfWork
+from open_gallery.tags.repository import TagRepository
+from open_gallery.tags.uow import TagsUnitOfWork
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
@@ -55,3 +57,9 @@ class SQLAlchemyPublicationsUnitOfWork(SQLAlchemyUnitOfWork, PublicationsUnitOfW
         super().__init__(session)
         self.publications = publication_repository
         self.images = image_repository
+
+
+class SQLAlchemyTagsUnitOfWork(SQLAlchemyUnitOfWork, TagsUnitOfWork):
+    def __init__(self, session: AsyncSession, tag_repository: TagRepository) -> None:
+        super().__init__(session)
+        self.tags = tag_repository
