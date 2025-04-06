@@ -13,6 +13,7 @@ from open_gallery.api.identity.router import identity_router
 from open_gallery.api.images.exceptions import upload_error_handler
 from open_gallery.api.images.router import images_router
 from open_gallery.api.ioc.settings import SettingsProvider
+from open_gallery.api.publications.router import publications_router
 from open_gallery.api.settings import APISettings
 from open_gallery.context.core import real_ip_ctx, request_id_ctx, sequence_ctx
 from open_gallery.file_storage.ioc import FileStorageProvider
@@ -27,6 +28,7 @@ from open_gallery.passwords.ioc import PasswordsProvider
 from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
 from open_gallery.persistence.tables.base import mapper_registry
 from open_gallery.persistence.tables.mappers import bind_mappers
+from open_gallery.publications.ioc import PublicationUsecasesProvider
 from open_gallery.shared.exceptions import DomainError
 from open_gallery.shared_api.authentication.ioc import AuthorizationProvider
 from open_gallery.shared_api.exceptions import domain_error_handler
@@ -56,6 +58,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         IdentityUsecasesProvider(),
         FileStorageProvider(),
         ImageUsecasesProvider(),
+        PublicationUsecasesProvider(),
         AuthorizationProvider(),
         FastapiProvider(),
     )
@@ -80,6 +83,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
 
     api_v1.include_router(identity_router)
     api_v1.include_router(images_router)
+    api_v1.include_router(publications_router)
 
     app.include_router(api_v1)
 
