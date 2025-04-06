@@ -17,6 +17,7 @@ from open_gallery.publications.use_cases.get_not_approved import GetNotApprovedP
 from open_gallery.publications.use_cases.react import ReactToPublicationUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
+from open_gallery.shared.pagination import PaginationParams
 from open_gallery.shared_api.authentication.security import authorized
 
 publications_router = APIRouter(
@@ -28,9 +29,8 @@ publications_router = APIRouter(
 
 @publications_router.get("")
 @inject
-async def get_publciations_list_endpoint(  # noqa: PLR0913
-    limit: Annotated[int, Query()],
-    offset: Annotated[int, Query()],
+async def get_publciations_list_endpoint(
+    pagination: Annotated[PaginationParams, Depends()],
     actor: Annotated[User, Depends(authorized)],
     get_publications_list: FromDishka[GetPublicationsListUsecase],
     get_not_approved_publications: FromDishka[GetNotApprovedPublicationsUsecase],
@@ -38,8 +38,8 @@ async def get_publciations_list_endpoint(  # noqa: PLR0913
     approved: Annotated[bool, Query()] = True,
 ) -> list[Publication]:
     if approved:
-        return await get_publications_list(limit, offset)
-    return await get_not_approved_publications(limit, offset, actor)
+        return await get_publications_list(pagination.limit, pagination.offset)
+    return await get_not_approved_publications(pagination.limit, pagination.offset, actor)
 
 
 @publications_router.get("/{publication_id}")

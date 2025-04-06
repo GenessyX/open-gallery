@@ -21,6 +21,7 @@ from open_gallery.identity.use_cases.set_role import SetUserRoleUsecase
 from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
+from open_gallery.shared.pagination import PaginationParams
 from open_gallery.shared_api.authentication.security import authorized
 from open_gallery.shared_api.exceptions import define_possible_errors
 
@@ -115,12 +116,11 @@ users_router = APIRouter(prefix="/users", route_class=LoggingRoute, tags=["Users
 @users_router.get("")
 @inject
 async def get_users_list_endpoint(
-    limit: Annotated[int, Query()],
-    offset: Annotated[int, Query()],
+    pagination: Annotated[PaginationParams, Depends()],
     actor: Annotated[User, Depends(authorized)],
     get_users_list: FromDishka[GetUsersListUsecase],
 ) -> list[User]:
-    return await get_users_list(limit, offset, actor)
+    return await get_users_list(pagination.limit, pagination.offset, actor)
 
 
 @users_router.get("/search")
