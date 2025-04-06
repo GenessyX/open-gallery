@@ -6,6 +6,8 @@ from open_gallery.identity.repository import UserRepository
 from open_gallery.identity.uow import IdentityUnitOfWork
 from open_gallery.images.repository import ImageRepository
 from open_gallery.images.uow import ImagesUnitOfWork
+from open_gallery.publications.repository import PublicationRepository
+from open_gallery.publications.uow import PublicationsUnitOfWork
 from open_gallery.shared.uow import UnitOfWork
 
 
@@ -40,4 +42,16 @@ class SQLAlchemyIdentityUnitOfWork(SQLAlchemyUnitOfWork, IdentityUnitOfWork):
 class SQLAlchemyImagesUnitOfWork(SQLAlchemyUnitOfWork, ImagesUnitOfWork):
     def __init__(self, session: AsyncSession, image_repository: ImageRepository) -> None:
         super().__init__(session)
+        self.images = image_repository
+
+
+class SQLAlchemyPublicationsUnitOfWork(SQLAlchemyUnitOfWork, PublicationsUnitOfWork):
+    def __init__(
+        self,
+        session: AsyncSession,
+        publication_repository: PublicationRepository,
+        image_repository: ImageRepository,
+    ) -> None:
+        super().__init__(session)
+        self.publications = publication_repository
         self.images = image_repository

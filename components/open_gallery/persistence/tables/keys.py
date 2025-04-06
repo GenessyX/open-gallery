@@ -9,3 +9,9 @@ UserForeignKey: _ForeignKey = lambda: ForeignKey("users.id", ondelete="CASCADE")
 
 ImagePrimaryKeyType = UUID
 ImageForeignKey: _ForeignKey = lambda: ForeignKey("images.id", ondelete="CASCADE")  # noqa: E731
+
+PublicationPrimaryKeyType = UUID
+PublicationForeignKey: _ForeignKey = lambda: ForeignKey("publications.id", ondelete="CASCADE")  # noqa: E731
+
+PublicationCommentPrimaryKeyType = UUID
+PublicationCommentForeignKey: _ForeignKey = lambda: ForeignKey("publication_comments.id", ondelete="CASCADE")  # noqa: E731
