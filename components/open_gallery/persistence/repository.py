@@ -3,6 +3,7 @@ from typing import override
 from sqlalchemy import Table, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from open_gallery.persistence.exceptions import InvalidQueryError
 from open_gallery.shared.entity import EntityIdT, EntityT
 from open_gallery.shared.repository import Repository
 
@@ -22,6 +23,14 @@ class SQLAlchemyRepository(Repository[EntityIdT, EntityT]):
     @override
     async def get_list(self, limit: int, offset: int) -> list[EntityT]:
         stmt = select(self._entity).order_by(self._table.c.created_at.desc()).limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    @override
+    async def search(self, field: str, value: str) -> list[EntityT]:
+        if not hasattr(self._entity, field):
+            raise InvalidQueryError
+        stmt = select(self._entity).where(getattr(self._table.c, field).ilike(f"%{value}%"))
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 

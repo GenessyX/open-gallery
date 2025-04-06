@@ -5,9 +5,12 @@ from open_gallery.identity.dtos import AccessTokenPayload, RefreshTokenPayload
 from open_gallery.identity.services.tokens import TokensService
 from open_gallery.identity.services.verification import VerificationService
 from open_gallery.identity.settings import IdentitySettings, JWTSettings
+from open_gallery.identity.use_cases.get_user_list import GetUsersListUsecase
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
 from open_gallery.identity.use_cases.refresh_token import RefreshTokenUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
+from open_gallery.identity.use_cases.search_users import SearchUsersUsecase
+from open_gallery.identity.use_cases.set_role import SetUserRoleUsecase
 from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
 from open_gallery.jwt.impl import JwcryptoJWTService
 from open_gallery.jwt.interface import JWTService
@@ -48,3 +51,6 @@ class IdentityUsecasesProvider(Provider):
     login = provide(LoginUserUsecase)
     verify = provide(VerifyUserUsecase)
     refresh = provide(RefreshTokenUsecase)
+    set_role = provide(SetUserRoleUsecase)
+    get_list = provide(GetUsersListUsecase)
+    search = provide(SearchUsersUsecase)

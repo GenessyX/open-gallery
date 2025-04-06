@@ -15,6 +15,9 @@ class Repository(ABC, Generic[EntityIdT, EntityT]):
     async def get_list(self, limit: int, offset: int) -> list[EntityT]: ...
 
     @abstractmethod
+    async def search(self, field: str, value: str) -> list[EntityT]: ...
+
+    @abstractmethod
     async def delete(self, entity_id: EntityIdT) -> None: ...
 
     @abstractmethod

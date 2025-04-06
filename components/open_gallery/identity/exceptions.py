@@ -1,3 +1,4 @@
+from open_gallery.identity.entities import UserId
 from open_gallery.shared.exceptions import DomainError
 
 
@@ -37,3 +38,10 @@ class PermissionsError(UserError):
 
     def __init__(self) -> None:
         super().__init__(self.message_template)
+
+
+class UserNotFoundError(UserError):
+    message_template = "User with id {user_id} not found"
+
+    def __init__(self, user_id: UserId) -> None:
+        super().__init__(self.message_template.format(user_id=user_id))
