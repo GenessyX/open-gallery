@@ -5,6 +5,7 @@ from open_gallery.publications.use_cases.approve import ApprovePublicationUsecas
 from open_gallery.publications.use_cases.create import CreatePublicationUsecase
 from open_gallery.publications.use_cases.get import GetPublicationUsecase
 from open_gallery.publications.use_cases.get_list import GetPublicationsListUsecase
+from open_gallery.publications.use_cases.get_not_approved import GetNotApprovedPublicationsUsecase
 from open_gallery.publications.use_cases.react import ReactToPublicationUsecase
 
 
@@ -17,3 +18,4 @@ class PublicationUsecasesProvider(Provider):
     react = provide(ReactToPublicationUsecase)
     get_list = provide(GetPublicationsListUsecase)
     approve = provide(ApprovePublicationUsecase)
+    get_not_approved = provide(GetNotApprovedPublicationsUsecase)

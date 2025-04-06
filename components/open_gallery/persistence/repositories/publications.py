@@ -24,3 +24,15 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
         )
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
+
+    @override
+    async def get_not_approved(self, limit: int, offset: int) -> list[Publication]:
+        stmt = (
+            select(Publication)
+            .where(publications.c.approved_by_id.is_(None))
+            .order_by(publications.c.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
