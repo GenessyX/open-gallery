@@ -2,20 +2,18 @@ import dataclasses
 import inspect
 import typing
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, cast, get_origin, override
-
-from pydantic_core import PydanticUndefined
-
-from open_gallery.shared.types import SecretValue
-
-if TYPE_CHECKING:
-    from _typeshed import DataclassInstance
-
+from types import UnionType
+from typing import TYPE_CHECKING, Any, Union, cast, get_origin, override
 
 from fastapi import APIRouter as _APIRouter
 from pydantic import BaseModel
+from pydantic_core import PydanticUndefined
 
+from open_gallery.shared.types import SecretValue
 from open_gallery.shared_api.model import APIModel
+
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 
 def create_fields(cls: type["DataclassInstance"]) -> list[tuple[str, type | Any, Any]]:
@@ -24,11 +22,23 @@ def create_fields(cls: type["DataclassInstance"]) -> list[tuple[str, type | Any,
         if get_origin(field.type) is SecretValue or field.metadata.get("exclude", False) or not field.repr:
             continue
 
-        type_ = (
-            transform_dataclass_to_response_model(field.type)
-            if dataclasses.is_dataclass(field.type) and inspect.isclass(field.type)
-            else field.type
-        )
+        origin = typing.get_origin(field.type)
+        if origin:
+            if origin is UnionType:
+                origin = Union
+            overwrite_args = []
+            generic_args = typing.get_args(field.type)
+            for arg in generic_args:
+                if inspect.isclass(arg) and dataclasses.is_dataclass(arg):
+                    _arg = transform_dataclass_to_response_model(arg)
+                else:
+                    _arg = arg
+                overwrite_args.append(_arg)
+            type_ = origin[*overwrite_args]
+        elif inspect.isclass(field.type) and dataclasses.is_dataclass(field.type):
+            type_ = transform_dataclass_to_response_model(field.type)
+        else:
+            type_ = field.type
 
         field_defs.append(
             (
