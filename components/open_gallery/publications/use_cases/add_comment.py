@@ -16,11 +16,7 @@ class AddPublicationCommentUsecase(Usecase):
             if not publication:
                 raise PublicationNotFoundError(publication_id)
 
-            comment = Comment(
-                text=text,
-                author=actor,
-            )
-            publication.comments.append(comment)
+            comment = publication.add_comment(text, actor)
 
             await uow.publications.save(publication)
 

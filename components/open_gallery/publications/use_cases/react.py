@@ -1,7 +1,7 @@
 from open_gallery.identity.entities import User
 from open_gallery.publications.dtos import ReactionType
-from open_gallery.publications.entities import Like, PublicationId
-from open_gallery.publications.exceptions import InvalidLikeError, InvalidUnlikeError, PublicationNotFoundError
+from open_gallery.publications.entities import PublicationId
+from open_gallery.publications.exceptions import PublicationNotFoundError
 from open_gallery.publications.uow import PublicationsUnitOfWork
 
 
@@ -16,22 +16,16 @@ class ReactToPublicationUsecase:
         actor: User,
     ) -> bool:
         async with self._uow as uow:
-            publication = await uow.publications.get(publication_id)
+            publication = await uow.publications.get_with_likes(publication_id, actor.id)
 
             if not publication:
                 raise PublicationNotFoundError(publication_id)
 
-            existing_like = next((like for like in publication.likes if like.user == actor), None)
-
-            if reaction_type is ReactionType.UNLIKE:
-                if not existing_like:
-                    raise InvalidUnlikeError(publication_id)
-                publication.likes.remove(existing_like)
-            else:
-                if existing_like:
-                    raise InvalidLikeError(publication_id)
-                like = Like(user=actor)
-                publication.likes.append(like)
+            match reaction_type:
+                case ReactionType.LIKE:
+                    publication.like(actor)
+                case ReactionType.UNLIKE:
+                    publication.unlike(actor)
 
             await uow.publications.save(publication)
 

@@ -1,11 +1,13 @@
 from typing import override
 
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import contains_eager
 
+from open_gallery.identity.entities import UserId
 from open_gallery.persistence.repository import SQLAlchemyRepository
-from open_gallery.persistence.tables.publications import publications
-from open_gallery.publications.entities import Publication, PublicationId
+from open_gallery.persistence.tables.publications import publication_likes, publication_views, publications
+from open_gallery.publications.entities import Like, Publication, PublicationId, View
 from open_gallery.publications.repository import PublicationRepository
 
 
@@ -36,3 +38,43 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
         )
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
+
+    @override
+    async def get_with_views(self, publication_id: PublicationId, user_id: UserId) -> Publication | None:
+        stmt = (
+            select(Publication)
+            .join(
+                View,
+                onclause=and_(
+                    publications.c.id == publication_views.c.publication_id,
+                    publication_views.c.user_id == user_id,
+                ),
+                isouter=True,
+            )
+            .where(publications.c.id == publication_id)
+        ).options(
+            contains_eager(Publication.views),  # type: ignore[arg-type]
+        )
+
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+    @override
+    async def get_with_likes(self, publication_id: PublicationId, user_id: UserId) -> Publication | None:
+        stmt = (
+            select(Publication)
+            .join(
+                Like,
+                onclause=and_(
+                    publications.c.id == publication_likes.c.publication_id,
+                    publication_likes.c.user_id == user_id,
+                ),
+                isouter=True,
+            )
+            .where(publications.c.id == publication_id)
+        ).options(
+            contains_eager(Publication.likes),  # type: ignore[arg-type]
+        )
+
+        result = await self._session.execute(stmt)
+        return result.scalar()

@@ -1,5 +1,5 @@
-from sqlalchemy import JSON, String, Table, func
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy import JSON, String, Table, func, select
+from sqlalchemy.orm import column_property, registry, relationship
 
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
@@ -117,22 +117,39 @@ def bind_mappers(mapper_registry: registry) -> None:
             "comments": relationship(
                 Comment,
                 uselist=True,
-                lazy="selectin",
+                lazy="noload",
                 order_by=publication_comments.c.created_at.desc(),
+            ),
+            "comments_count": column_property(
+                select(func.count(publication_comments.c.author_id))
+                .where(publication_comments.c.publication_id == publications.c.id)
+                .correlate_except(publication_comments)
+                .scalar_subquery(),
             ),
             "likes": relationship(
                 Like,
                 uselist=True,
-                lazy="selectin",
-                # primaryjoin=publications.c.id == publication_likes.c.publication_id,
+                lazy="noload",
                 order_by=publication_likes.c.created_at.desc(),
+                cascade="all, delete-orphan",
+            ),
+            "likes_count": column_property(
+                select(func.count(publication_likes.c.user_id))
+                .where(publication_likes.c.publication_id == publications.c.id)
+                .correlate_except(publication_likes)
+                .scalar_subquery(),
             ),
             "views": relationship(
                 View,
                 uselist=True,
-                lazy="selectin",
-                # primaryjoin=publications.c.id == publication_views.c.publication_id,
+                lazy="noload",
                 order_by=publication_views.c.created_at.desc(),
+            ),
+            "views_count": column_property(
+                select(func.count(publication_views.c.user_id))
+                .where(publication_views.c.publication_id == publications.c.id)
+                .correlate_except(publication_views)
+                .scalar_subquery(),
             ),
             "preview": relationship(
                 Image,
