@@ -14,6 +14,8 @@ class DatabaseSettings(DsnSettings):
     port: int = 5432
     echo: bool = False
     echo_pool: bool = False
+    echo_orm: bool = False
+    echo_dialects: bool = False
     pool_pre_ping: bool = True
     pool_recycle: datetime.timedelta = datetime.timedelta(hours=1)
     pool_size: int = 20

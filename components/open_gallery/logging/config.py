@@ -1,28 +1,74 @@
 from contextvars import ContextVar
+from dataclasses import dataclass
 from typing import Any
 
 from open_gallery.logging.settings import LoggingSettings
+from open_gallery.persistence.settings import DatabaseSettings
 from open_gallery.settings.app import AppSettings
+
+
+@dataclass(kw_only=True)
+class LoggingContextVars:
+    sequence: ContextVar[int]
+    real_ip: ContextVar[str]
+    request_id: ContextVar[str]
 
 
 def create_logging_config(
     settings: LoggingSettings,
     app_settings: AppSettings,
-    sequence_ctx: ContextVar[int],
-    real_ip_ctx: ContextVar[str],
-    request_id_ctx: ContextVar[str],
+    database_settings: DatabaseSettings,
+    context_vars: LoggingContextVars,
 ) -> dict[str, Any]:
+    loggers = {
+        "__main__": {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        },
+        "open_gallery": {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        },
+    }
+
+    if database_settings.echo:
+        loggers["sqlalchemy.engine"] = {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        }
+    if database_settings.echo_pool:
+        loggers["sqlalchemy.pool"] = {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        }
+    if database_settings.echo_orm:
+        loggers["sqlalchemy.orm"] = {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        }
+    if database_settings.echo_dialects:
+        loggers["sqlalchemy.dialects"] = {
+            "handlers": ["stdout"],
+            "level": settings.handlers_level,
+            "propagate": False,
+        }
+
     return {
         "version": 1,
         "disable_existing_loggers": False,
         "filters": {
             "request_id": {
                 "()": "open_gallery.logging.filters.RequestIdFilter",
-                "request_id_ctx": request_id_ctx,
+                "request_id_ctx": context_vars.request_id,
             },
             "sequence": {
                 "()": "open_gallery.logging.filters.SequenceFilter",
-                "sequence_ctx": sequence_ctx,
+                "sequence_ctx": context_vars.sequence,
             },
         },
         "formatters": {
@@ -39,7 +85,7 @@ def create_logging_config(
                 "stage": app_settings.stage.value,
                 "app_name": app_settings.name,
                 "json_ensure_ascii": False,
-                "real_ip_ctx": real_ip_ctx,
+                "real_ip_ctx": context_vars.real_ip,
             },
         },
         "handlers": {
@@ -50,18 +96,7 @@ def create_logging_config(
                 "filters": ["request_id", "sequence"],
             },
         },
-        "loggers": {
-            "__main__": {
-                "handlers": ["stdout"],
-                "level": settings.handlers_level,
-                "propagate": False,
-            },
-            "open_gallery": {
-                "handlers": ["stdout"],
-                "level": settings.handlers_level,
-                "propagate": False,
-            },
-        },
+        "loggers": loggers,
         "root": {
             "handlers": ["stdout"],
             "propagate": False,

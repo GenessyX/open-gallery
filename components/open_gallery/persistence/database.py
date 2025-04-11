@@ -9,8 +9,8 @@ class Database:
 
         self._engine = create_async_engine(
             url=str(settings.dsn),
-            echo=settings.echo,
-            echo_pool=settings.echo_pool,
+            echo=False,
+            echo_pool=False,
             pool_pre_ping=settings.pool_pre_ping,
             pool_recycle=int(settings.pool_recycle.total_seconds()),
             max_overflow=settings.max_overflow,

@@ -24,7 +24,7 @@ from open_gallery.identity.ioc import IdentityModuleProvider, IdentitySettingsPr
 from open_gallery.images.exceptions import UploadError
 from open_gallery.images.ioc import ImageUsecasesProvider
 from open_gallery.jwt.exceptions import JWTError
-from open_gallery.logging.config import create_logging_config
+from open_gallery.logging.config import LoggingContextVars, create_logging_config
 from open_gallery.passwords.ioc import PasswordsProvider
 from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
 from open_gallery.persistence.tables.base import mapper_registry
@@ -72,9 +72,12 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         create_logging_config(
             settings.logging,
             settings.app,
-            sequence_ctx,
-            real_ip_ctx,
-            request_id_ctx,
+            settings.database,
+            LoggingContextVars(
+                sequence=sequence_ctx,
+                request_id=request_id_ctx,
+                real_ip=real_ip_ctx,
+            ),
         ),
     )
 
