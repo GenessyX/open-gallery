@@ -25,6 +25,7 @@ class TokensService:
                 sub=str(user.id),
                 role=user.role,
                 email=user.email,
+                verified=user.verified,
             ),
             expires_in=self._settings.access_token_ttl,
         )

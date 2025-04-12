@@ -16,6 +16,7 @@ class TokensPair:
 class AccessTokenPayload(JWTPayload):
     role: UserRole
     email: Email
+    verified: bool
 
 
 @dataclass(kw_only=True)

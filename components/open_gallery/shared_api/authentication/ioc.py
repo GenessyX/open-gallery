@@ -48,6 +48,7 @@ class AuthorizationProvider(Provider):
             email=decoded_token.email,
             password=SecretValue(""),
             role=decoded_token.role,
+            verified=decoded_token.verified,
         )
 
         make_transient_to_detached(user)
