@@ -4,8 +4,10 @@ from typing import BinaryIO, override
 from open_gallery.file_storage.interface import FileStorage
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
+from open_gallery.images.exceptions import TooLargeFileError
 from open_gallery.images.settings import ImagesSettings
 from open_gallery.images.uow import ImagesUnitOfWork
+from open_gallery.images.utils import get_size
 from open_gallery.shared.use_case import Usecase
 
 
@@ -22,6 +24,10 @@ class UploadImageUsecase(Usecase):
 
     @override
     async def __call__(self, actor: User, file: BinaryIO, mime_type: str) -> Image:
+        file_size = get_size(file)
+        if file_size > self._settings.max_size:
+            raise TooLargeFileError(self._settings.max_size)
+
         async with self._uow as uow:
             image = Image.create(
                 base_path=self._settings.base_path,
