@@ -127,6 +127,7 @@ def bind_mappers(mapper_registry: registry) -> None:
                 .where(publication_comments.c.publication_id == publications.c.id)
                 .correlate_except(publication_comments)
                 .scalar_subquery(),
+                expire_on_flush=False,
             ),
             "likes": relationship(
                 Like,
@@ -140,6 +141,7 @@ def bind_mappers(mapper_registry: registry) -> None:
                 .where(publication_likes.c.publication_id == publications.c.id)
                 .correlate_except(publication_likes)
                 .scalar_subquery(),
+                expire_on_flush=False,
             ),
             "views": relationship(
                 View,
@@ -152,6 +154,7 @@ def bind_mappers(mapper_registry: registry) -> None:
                 .where(publication_views.c.publication_id == publications.c.id)
                 .correlate_except(publication_views)
                 .scalar_subquery(),
+                expire_on_flush=False,
             ),
             "preview": relationship(
                 Image,
