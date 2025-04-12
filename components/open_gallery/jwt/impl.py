@@ -9,6 +9,7 @@ from jwcrypto.jwt import JWT, JWTExpired
 
 from open_gallery.jwt.exceptions import ExpiredTokenError, TokenDecodeError
 from open_gallery.jwt.interface import JWTService, PayloadT, SerializedToken
+from open_gallery.shared.types import Email
 
 retort = Retort(
     recipe=[
@@ -20,6 +21,8 @@ retort = Retort(
             datetime.datetime,
             lambda x: datetime.datetime.fromtimestamp(x, tz=datetime.UTC),
         ),
+        dumper(Email, lambda x: x),
+        loader(Email, lambda x: Email(x)),
     ],
 )
 

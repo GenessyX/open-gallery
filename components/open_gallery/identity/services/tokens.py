@@ -24,6 +24,7 @@ class TokensService:
             payload=AccessTokenPayload(
                 sub=str(user.id),
                 role=user.role,
+                email=user.email,
             ),
             expires_in=self._settings.access_token_ttl,
         )
