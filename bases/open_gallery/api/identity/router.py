@@ -19,6 +19,8 @@ from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.identity.use_cases.search_users import SearchUsersUsecase
 from open_gallery.identity.use_cases.set_role import SetUserRoleUsecase
 from open_gallery.identity.use_cases.verify_user import VerifyUserUsecase
+from open_gallery.notifications.entities import GenericNotification
+from open_gallery.notifications.use_cases.get_notifications import GetUserNotificationsUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared.pagination import PaginationParams
@@ -108,6 +110,16 @@ async def refresh_token_endpoint(
     refresh: FromDishka[RefreshTokenUsecase],
 ) -> TokensPair:
     return await refresh(request_body.refresh_token)
+
+
+@identity_router.get("/notifications")
+@inject
+async def get_notifications_endpoint(
+    pagination: Annotated[PaginationParams, Depends()],
+    actor: Annotated[User, Depends(authorized)],
+    get_notifications: FromDishka[GetUserNotificationsUsecase],
+) -> list[GenericNotification]:
+    return await get_notifications(actor, pagination.limit, pagination.offset)
 
 
 users_router = APIRouter(prefix="/users", route_class=LoggingRoute, tags=["Users"])

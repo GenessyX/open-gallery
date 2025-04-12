@@ -20,6 +20,7 @@ class Notification(Entity):
     type: NotificationType
     publication: "Publication"
     actor: "User"
+    seen: bool = False
 
 
 @dataclass(kw_only=True)
@@ -31,3 +32,6 @@ class CommentNotification(Notification):
 @dataclass(kw_only=True)
 class LikeNotification(Notification):
     type: NotificationType = NotificationType.LIKE
+
+
+GenericNotification = CommentNotification | LikeNotification

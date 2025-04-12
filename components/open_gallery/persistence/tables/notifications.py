@@ -1,4 +1,4 @@
-from sqlalchemy import UUID, Table, func
+from sqlalchemy import UUID, Boolean, Table, func
 from sqlalchemy.orm import foreign, registry, relationship, remote
 
 from open_gallery.identity.entities import User
@@ -24,6 +24,7 @@ notifications = Table(
     Column("user_id", UserPrimaryKeyType, UserForeignKey()),
     Column("type", NotificationTypeTypeImpl),
     Column("related_object_id", UUID, nullable=True),
+    Column("seen", Boolean),
     *datetime_columns(),
 )
 

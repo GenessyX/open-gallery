@@ -1,13 +1,20 @@
-from typing import override
+from typing import cast, override
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import contains_eager, selectin_polymorphic
 
 from open_gallery.hashing.interface import HashedValue
 from open_gallery.identity.entities import RefreshToken, User, UserId, VerificationCode
 from open_gallery.identity.repository import UserRepository
+from open_gallery.notifications.entities import (
+    CommentNotification,
+    GenericNotification,
+    LikeNotification,
+    Notification,
+)
 from open_gallery.persistence.repository import SQLAlchemyRepository
+from open_gallery.persistence.tables.notifications import notifications
 from open_gallery.persistence.tables.users import refresh_tokens, users, verification_codes
 from open_gallery.shared.types import Email, SecretValue
 
@@ -55,3 +62,30 @@ class SQLAlchemyUserRepository(SQLAlchemyRepository[UserId, User], UserRepositor
         )
         result = await self._session.execute(stmt)
         return result.scalar()
+
+    @override
+    async def get_notifications(self, user_id: UserId, limit: int, offset: int) -> list[GenericNotification]:
+        stmt = (
+            select(Notification)
+            .where(
+                and_(
+                    notifications.c.user_id == user_id,
+                    notifications.c.seen.is_(False),
+                ),
+            )
+            .order_by(notifications.c.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+            .options(
+                selectin_polymorphic(
+                    Notification,
+                    [
+                        CommentNotification,
+                        LikeNotification,
+                    ],
+                ),
+            )
+        )
+
+        result = await self._session.execute(stmt)
+        return cast("list[GenericNotification]", list(result.scalars().all()))
