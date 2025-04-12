@@ -1,10 +1,15 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import NewType
+from typing import TYPE_CHECKING, NewType
 
 from open_gallery.hashing.interface import HashedValue
+from open_gallery.notifications.entities import Notification, NotificationType
 from open_gallery.shared.entity import Entity, EntityId, SubEntity
 from open_gallery.shared.types import Email, SecretValue
+
+if TYPE_CHECKING:
+    from open_gallery.publications.entities import Publication
+
 
 UserId = NewType("UserId", EntityId)
 
@@ -34,6 +39,7 @@ class User(Entity):
     refresh_tokens: list[RefreshToken] = field(default_factory=list, repr=False)
     verification_codes: list[VerificationCode] = field(default_factory=list, repr=False)
     verified: bool = False
+    notifications: list[Notification] = field(default_factory=list, repr=False)
 
     def add_refresh_token(self, token_hash: SecretValue[HashedValue]) -> None:
         self.refresh_tokens.append(RefreshToken(token_hash=token_hash))
@@ -64,3 +70,12 @@ class User(Entity):
             (verification_code for verification_code in self.verification_codes if verification_code.code == code),
             None,
         )
+
+    def notify(self, notification_type: NotificationType, publication: "Publication", actor: "User") -> Notification:
+        notification = Notification(
+            type=notification_type,
+            publication=publication,
+            actor=actor,
+        )
+        self.notifications.append(notification)
+        return notification

@@ -18,3 +18,6 @@ PublicationCommentForeignKey: _ForeignKey = lambda: ForeignKey("publication_comm
 
 TagPrimaryKeyType = UUID
 TagForeignKey: _ForeignKey = lambda: ForeignKey("tags.id", ondelete="CASCADE")  # noqa: E731
+
+NotificationPrimaryKeyType = UUID
+NotificationForiegnKey: _ForeignKey = lambda: ForeignKey("notifications.id", ondelete="CASCADE")  # noqa: E731

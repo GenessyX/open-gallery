@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, String, Table, func, text
 from sqlalchemy.orm import registry, relationship
 
 from open_gallery.identity.entities import RefreshToken, User, VerificationCode
+from open_gallery.notifications.entities import Notification
 from open_gallery.persistence.tables.base import Column, datetime_columns, mapper_registry
 from open_gallery.persistence.tables.keys import UserForeignKey, UserPrimaryKeyType
 from open_gallery.persistence.type_decorators.datetime import UTCDateTime
@@ -37,6 +38,8 @@ verification_codes = Table(
 
 
 def bind_mappers(mapper_registry: registry) -> None:
+    from open_gallery.persistence.tables.notifications import notifications
+
     mapper_registry.map_imperatively(
         RefreshToken,
         refresh_tokens,
@@ -62,6 +65,12 @@ def bind_mappers(mapper_registry: registry) -> None:
                 uselist=True,
                 lazy="noload",
                 cascade="save-update, merge, delete, delete-orphan",
+            ),
+            "notifications": relationship(
+                Notification,
+                uselist=True,
+                lazy="noload",
+                primaryjoin=users.c.id == notifications.c.user_id,
             ),
         },
     )

@@ -8,6 +8,7 @@ from sqlalchemy import Connection, engine_from_config, pool
 from open_gallery.api.settings import APISettings
 from open_gallery.persistence.tables.base import mapper_registry
 from open_gallery.persistence.tables.images import images
+from open_gallery.persistence.tables.notifications import notifications
 from open_gallery.persistence.tables.publications import publications
 from open_gallery.persistence.tables.tags import tags
 from open_gallery.persistence.tables.users import users
@@ -25,7 +26,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-tables = [users, images, publications, tags]
+tables = [users, images, publications, tags, notifications]
 target_metadata = mapper_registry.metadata
 
 # other values from the config, defined by the needs of env.py,

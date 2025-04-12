@@ -3,6 +3,7 @@ from typing import Any, NewType
 
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
+from open_gallery.notifications.entities import NotificationType
 from open_gallery.publications.exceptions import InvalidLikeError, InvalidUnlikeError
 from open_gallery.shared.entity import Entity, EntityId, SubEntity
 from open_gallery.tags.entities import Tag
@@ -85,6 +86,8 @@ class Publication(Entity):
         comment = Comment(text=text, author=actor)
         self.comments.append(comment)
         self.comments_count += 1
+        if actor != self.created_by:
+            self.created_by.notify(NotificationType.COMMENT, self, actor)
         return comment
 
     def delete_comment(self, comment: Comment) -> None:
