@@ -54,13 +54,13 @@ def bind_mappers(mapper_registry: registry) -> None:
             "refresh_tokens": relationship(
                 RefreshToken,
                 uselist=True,
-                lazy="selectin",
+                lazy="noload",
                 cascade="save-update, merge, delete, delete-orphan",
             ),
             "verification_codes": relationship(
                 VerificationCode,
                 uselist=True,
-                lazy="selectin",
+                lazy="noload",
                 cascade="save-update, merge, delete, delete-orphan",
             ),
         },
