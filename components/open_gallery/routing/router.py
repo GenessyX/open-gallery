@@ -15,6 +15,13 @@ from open_gallery.shared_api.model import APIModel
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
+Registry: dict[str, BaseModel] = {}
+
+
+def rebuild_registry() -> None:
+    for cls in Registry.values():
+        cls.model_rebuild(_types_namespace=Registry)
+
 
 def create_fields(cls: type["DataclassInstance"]) -> list[tuple[str, type | Any, Any]]:
     field_defs: list[tuple[str, type | Any, Any]] = []
@@ -82,27 +89,33 @@ def transform_dataclass_to_response_model(cls: type["DataclassInstance"]) -> typ
             field_info.default = dataclasses.MISSING
         if field_info.default_factory:
             field_info.default_factory = dataclasses.MISSING
+    response_model = type(cls.__name__, (TransitModel, APIModel), {})
+    Registry[response_model.__name__] = response_model  # type: ignore[assignment]
+    return response_model
 
-    return type(cls.__name__, (TransitModel, APIModel), {})
 
-
-def transform_response_model(cls: type) -> type:
+def recursive_transform(cls: type) -> type:
     if inspect.isclass(cls) and dataclasses.is_dataclass(cls):
         return transform_dataclass_to_response_model(cls)
     origin = typing.get_origin(cls)
     if not origin:
         return cls
 
+    if origin is UnionType:
+        origin = Union
     overwrite_args = []
     generic_args = typing.get_args(cls)
     for arg in generic_args:
-        if inspect.isclass(arg) and dataclasses.is_dataclass(arg):
-            _arg = transform_dataclass_to_response_model(arg)
-        else:
-            _arg = arg
+        _arg = recursive_transform(arg)
         overwrite_args.append(_arg)
-
     return cast("type", origin[*overwrite_args])
+
+
+def transform_response_model(cls: type) -> type:
+    if inspect.isclass(cls) and dataclasses.is_dataclass(cls):
+        return transform_dataclass_to_response_model(cls)
+
+    return recursive_transform(cls)
 
 
 class APIRouter(_APIRouter):

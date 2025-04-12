@@ -25,11 +25,13 @@ from open_gallery.images.exceptions import UploadError
 from open_gallery.images.ioc import ImageUsecasesProvider
 from open_gallery.jwt.exceptions import JWTError
 from open_gallery.logging.config import LoggingContextVars, create_logging_config
+from open_gallery.notifications.ioc import NotificationUsecasesProvider
 from open_gallery.passwords.ioc import PasswordsProvider
 from open_gallery.persistence.ioc import DatabaseProvider, RepositoriesProvider, UnitsOfWorkProvider
 from open_gallery.persistence.tables.base import mapper_registry
 from open_gallery.persistence.tables.mappers import bind_mappers
 from open_gallery.publications.ioc import PublicationUsecasesProvider
+from open_gallery.routing.router import rebuild_registry
 from open_gallery.shared.exceptions import DomainError
 from open_gallery.shared_api.authentication.ioc import AuthorizationProvider
 from open_gallery.shared_api.exceptions import domain_error_handler
@@ -61,6 +63,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         FileStorageProvider(),
         ImageUsecasesProvider(),
         PublicationUsecasesProvider(),
+        NotificationUsecasesProvider(),
         TagUsecasesProvider(),
         AuthorizationProvider(),
         FastapiProvider(),
@@ -91,6 +94,8 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     api_v1.include_router(images_router)
     api_v1.include_router(publications_router)
     api_v1.include_router(tags_router)
+
+    rebuild_registry()
 
     app.include_router(api_v1)
 
