@@ -1,15 +1,11 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, NewType
+from typing import NewType
 
 from open_gallery.hashing.interface import HashedValue
-from open_gallery.notifications.entities import Notification, NotificationType
+from open_gallery.notifications.entities import Notification
 from open_gallery.shared.entity import Entity, EntityId, SubEntity
 from open_gallery.shared.types import Email, SecretValue
-
-if TYPE_CHECKING:
-    from open_gallery.publications.entities import Publication
-
 
 UserId = NewType("UserId", EntityId)
 
@@ -71,11 +67,6 @@ class User(Entity):
             None,
         )
 
-    def notify(self, notification_type: NotificationType, publication: "Publication", actor: "User") -> Notification:
-        notification = Notification(
-            type=notification_type,
-            publication=publication,
-            actor=actor,
-        )
+    def notify(self, notification: Notification) -> Notification:
         self.notifications.append(notification)
         return notification

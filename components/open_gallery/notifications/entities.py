@@ -6,7 +6,7 @@ from open_gallery.shared.entity import Entity
 
 if TYPE_CHECKING:
     from open_gallery.identity.entities import User
-    from open_gallery.publications.entities import Comment, Like, Publication
+    from open_gallery.publications.entities import Comment, Publication
 
 
 class NotificationType(str, Enum):
@@ -24,9 +24,10 @@ class Notification(Entity):
 
 @dataclass(kw_only=True)
 class CommentNotification(Notification):
+    type: NotificationType = NotificationType.COMMENT
     comment: "Comment"
 
 
 @dataclass(kw_only=True)
 class LikeNotification(Notification):
-    like: "Like"
+    type: NotificationType = NotificationType.LIKE

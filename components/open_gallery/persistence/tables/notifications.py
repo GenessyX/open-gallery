@@ -1,8 +1,8 @@
-from sqlalchemy import Table, func
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy import UUID, Table, func
+from sqlalchemy.orm import foreign, registry, relationship, remote
 
 from open_gallery.identity.entities import User
-from open_gallery.notifications.entities import Notification
+from open_gallery.notifications.entities import CommentNotification, LikeNotification, Notification, NotificationType
 from open_gallery.persistence.tables.base import Column, datetime_columns, mapper_registry
 from open_gallery.persistence.tables.keys import (
     NotificationPrimaryKeyType,
@@ -13,7 +13,7 @@ from open_gallery.persistence.tables.keys import (
 )
 from open_gallery.persistence.tables.users import users
 from open_gallery.persistence.type_decorators.notifications import NotificationTypeTypeImpl
-from open_gallery.publications.entities import Publication
+from open_gallery.publications.entities import Comment, Publication
 
 notifications = Table(
     "notifications",
@@ -23,14 +23,19 @@ notifications = Table(
     Column("actor_id", UserPrimaryKeyType, UserForeignKey()),
     Column("user_id", UserPrimaryKeyType, UserForeignKey()),
     Column("type", NotificationTypeTypeImpl),
+    Column("related_object_id", UUID, nullable=True),
     *datetime_columns(),
 )
 
 
 def bind_mappers(mapper_registry: registry) -> None:
+    from open_gallery.persistence.tables.publications import publication_comments
+
     mapper_registry.map_imperatively(
         Notification,
         notifications,
+        polymorphic_on=notifications.c.type,
+        polymorphic_identity="base",
         properties={
             "publication": relationship(
                 Publication,
@@ -44,4 +49,27 @@ def bind_mappers(mapper_registry: registry) -> None:
                 primaryjoin=notifications.c.actor_id == users.c.id,
             ),
         },
+    )
+
+    mapper_registry.map_imperatively(
+        CommentNotification,
+        notifications,
+        inherits=Notification,
+        polymorphic_identity=NotificationType.COMMENT,
+        properties={
+            "comment": relationship(
+                Comment,
+                uselist=False,
+                lazy="joined",
+                primaryjoin=foreign(notifications.c.related_object_id) == remote(publication_comments.c.id),
+            ),
+        },
+    )
+
+    mapper_registry.map_imperatively(
+        LikeNotification,
+        notifications,
+        inherits=Notification,
+        polymorphic_identity=NotificationType.LIKE,
+        properties={},
     )
