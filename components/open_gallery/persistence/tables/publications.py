@@ -1,5 +1,6 @@
-from sqlalchemy import JSON, String, Table, func, select
-from sqlalchemy.orm import column_property, registry, relationship
+from sqlalchemy import JSON, String, Table, func, inspect, select
+from sqlalchemy.event import listen
+from sqlalchemy.orm import QueryContext, column_property, registry, relationship
 
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
@@ -119,6 +120,7 @@ def bind_mappers(mapper_registry: registry) -> None:
                 uselist=True,
                 lazy="noload",
                 order_by=publication_comments.c.created_at.desc(),
+                cascade="all, delete-orphan",
             ),
             "comments_count": column_property(
                 select(func.count(publication_comments.c.author_id))
@@ -182,3 +184,16 @@ def bind_mappers(mapper_registry: registry) -> None:
             ),
         },
     )
+
+    def load_publication(target: Publication, _: QueryContext) -> None:
+        ins = inspect(target)
+        unloaded_attributes: set[str] = ins.unloaded  # type: ignore[union-attr]
+
+        if "comments_count" in unloaded_attributes:
+            target.comments_count = len(target.comments)
+        if "likes_count" in unloaded_attributes:
+            target.likes_count = len(target.likes)
+        if "views_count" in unloaded_attributes:
+            target.views_count = len(target.views)
+
+    listen(Publication, "load", load_publication)

@@ -9,7 +9,9 @@ from open_gallery.images.repository import ImageRepository
 from open_gallery.images.uow import ImagesUnitOfWork
 from open_gallery.persistence.database import Database
 from open_gallery.persistence.repositories.images import SQLAlchemyImageRepository
-from open_gallery.persistence.repositories.publications import SQLAlchemyPublicationRepository
+from open_gallery.persistence.repositories.publications import (
+    SQLAlchemyPublicationRepository,
+)
 from open_gallery.persistence.repositories.tags import SQLAlchemyTagRepository
 from open_gallery.persistence.repositories.users import SQLAlchemyUserRepository
 from open_gallery.persistence.uow import (

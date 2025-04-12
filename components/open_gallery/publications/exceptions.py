@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from open_gallery.shared.exceptions import DomainError
 
 if TYPE_CHECKING:
-    from open_gallery.publications.entities import PublicationId
+    from open_gallery.publications.entities import CommentId, PublicationId
 
 
 class PublicationError(DomainError): ...
@@ -35,3 +35,13 @@ class InvalidLikeError(PublicationError):
 
     def __init__(self, publication_id: "PublicationId") -> None:
         super().__init__(self.message_template.format(publication_id=publication_id))
+
+
+class CommentError(DomainError): ...
+
+
+class CommentNotFoundError(CommentError):
+    message_template = "Comment with id {comment_id} not found"
+
+    def __init__(self, comment_id: "CommentId") -> None:
+        super().__init__(self.message.format(comment_id=comment_id))

@@ -7,14 +7,17 @@ from fastapi import Body, Depends, Path, Query
 from open_gallery.api.publications.schemas import AddPublicationCommentRequestSchema, ReactToPublicationRequestSchema
 from open_gallery.identity.entities import User
 from open_gallery.publications.dtos import CreatePublicationDto
-from open_gallery.publications.entities import Comment, Publication, PublicationId
+from open_gallery.publications.entities import Comment, CommentId, Publication, PublicationId
 from open_gallery.publications.use_cases.add_comment import AddPublicationCommentUsecase
 from open_gallery.publications.use_cases.approve import ApprovePublicationUsecase
 from open_gallery.publications.use_cases.create import CreatePublicationUsecase
+from open_gallery.publications.use_cases.delete_comment import DeletePublicationCommentUsecase
 from open_gallery.publications.use_cases.get import GetPublicationUsecase
+from open_gallery.publications.use_cases.get_comments import GetPublicationCommentsUsecase
 from open_gallery.publications.use_cases.get_list import GetPublicationsListUsecase
 from open_gallery.publications.use_cases.get_not_approved import GetNotApprovedPublicationsUsecase
 from open_gallery.publications.use_cases.react import ReactToPublicationUsecase
+from open_gallery.publications.use_cases.update_comment import UpdatePublicationCommentUsecase
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared.pagination import PaginationParams
@@ -75,6 +78,48 @@ async def add_publication_comment_endpoint(
         request_body.text,
         actor,
     )
+
+
+@publications_router.get("/{publication_id}/comments")
+@inject
+async def get_publication_comments_endpoint(
+    publication_id: Annotated[PublicationId, Path()],
+    pagination: Annotated[PaginationParams, Depends()],
+    get_comments: FromDishka[GetPublicationCommentsUsecase],
+) -> list[Comment]:
+    return await get_comments(
+        publication_id,
+        pagination.limit,
+        pagination.offset,
+    )
+
+
+@publications_router.patch("/{publication_id}/comments/{comment_id}")
+@inject
+async def update_publication_comment_endpoint(
+    publication_id: Annotated[PublicationId, Path()],
+    comment_id: Annotated[CommentId, Path()],
+    request_body: Annotated[AddPublicationCommentRequestSchema, Body()],
+    actor: Annotated[User, Depends(authorized)],
+    update_comment: FromDishka[UpdatePublicationCommentUsecase],
+) -> Comment:
+    return await update_comment(
+        publication_id,
+        comment_id,
+        request_body.text,
+        actor,
+    )
+
+
+@publications_router.delete("/{publication_id}/comments/{comment_id}")
+@inject
+async def delete_publication_comment_endpoint(
+    publication_id: Annotated[PublicationId, Path()],
+    comment_id: Annotated[CommentId, Path()],
+    actor: Annotated[User, Depends(authorized)],
+    delete_comment: FromDishka[DeletePublicationCommentUsecase],
+) -> bool:
+    return await delete_comment(publication_id, comment_id, actor)
 
 
 @publications_router.post("/{publication_id}/reactions")

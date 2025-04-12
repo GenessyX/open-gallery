@@ -2,12 +2,17 @@ from typing import override
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import contains_eager, defer
 
 from open_gallery.identity.entities import UserId
 from open_gallery.persistence.repository import SQLAlchemyRepository
-from open_gallery.persistence.tables.publications import publication_likes, publication_views, publications
-from open_gallery.publications.entities import Like, Publication, PublicationId, View
+from open_gallery.persistence.tables.publications import (
+    publication_comments,
+    publication_likes,
+    publication_views,
+    publications,
+)
+from open_gallery.publications.entities import Comment, CommentId, Like, Publication, PublicationId, View
 from open_gallery.publications.repository import PublicationRepository
 
 
@@ -76,5 +81,39 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
             contains_eager(Publication.likes),  # type: ignore[arg-type]
         )
 
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+    @override
+    async def get_comments(self, publication_id: PublicationId, limit: int, offset: int) -> list[Comment]:
+        stmt = (
+            select(Comment)
+            .where(publication_comments.c.publication_id == publication_id)
+            .order_by(publication_comments.c.created_at.asc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    @override
+    async def get_with_comment(self, publication_id: PublicationId, comment_id: CommentId) -> Publication | None:
+        stmt = (
+            select(Publication)
+            .join(
+                Comment,
+                onclause=and_(
+                    publications.c.id == publication_comments.c.publication_id,
+                    publication_comments.c.id == comment_id,
+                ),
+            )
+            .where(publications.c.id == publication_id)
+            .options(
+                contains_eager(Publication.comments),  # type: ignore[arg-type]
+                defer(Publication.comments_count),  # type: ignore[arg-type]
+                defer(Publication.likes_count),  # type: ignore[arg-type]
+                defer(Publication.views_count),  # type: ignore[arg-type]
+            )
+        )
         result = await self._session.execute(stmt)
         return result.scalar()

@@ -78,8 +78,15 @@ class Publication(Entity):
         self.likes.remove(existing_like)
         self.likes_count -= 1
 
+    def get_comment(self, comment_id: CommentId) -> Comment | None:
+        return next((comment for comment in self.comments if comment.id == comment_id), None)
+
     def add_comment(self, text: str, actor: User) -> Comment:
         comment = Comment(text=text, author=actor)
         self.comments.append(comment)
         self.comments_count += 1
         return comment
+
+    def delete_comment(self, comment: Comment) -> None:
+        self.comments.remove(comment)
+        self.comments_count -= 1
