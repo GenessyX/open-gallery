@@ -120,12 +120,12 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
         return result.scalar()
 
     @override
-    async def get_popular(self, limit: int) -> list[Publication]:
-        thirty_days_ago = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
+    async def get_popular(self, limit: int, since: datetime.timedelta) -> list[Publication]:
+        created_since = datetime.datetime.now(datetime.UTC) - since
         stmt = (
             select(Publication)
             .where(publications.c.approved_by_id.is_not(None))
-            .where(publications.c.created_at >= thirty_days_ago)
+            .where(publications.c.created_at >= created_since)
             .order_by(Publication.views_count.desc())  # type: ignore[attr-defined]
         )
         result = await self._session.execute(stmt)

@@ -1,3 +1,4 @@
+import datetime
 from abc import ABC, abstractmethod
 
 from open_gallery.identity.entities import UserId
@@ -22,4 +23,4 @@ class PublicationRepository(Repository[PublicationId, Publication], ABC):
     async def get_with_comment(self, publication_id: PublicationId, comment_id: CommentId) -> Publication | None: ...
 
     @abstractmethod
-    async def get_popular(self, limit: int) -> list[Publication]: ...
+    async def get_popular(self, limit: int, since: datetime.timedelta) -> list[Publication]: ...

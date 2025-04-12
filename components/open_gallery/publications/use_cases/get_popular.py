@@ -1,3 +1,4 @@
+import datetime
 from typing import override
 
 from open_gallery.publications.entities import Publication
@@ -12,4 +13,4 @@ class GetPopularPublicationsUsecase(Usecase):
     @override
     async def __call__(self, limit: int) -> list[Publication]:
         async with self._uow as uow:
-            return await uow.publications.get_popular(limit)
+            return await uow.publications.get_popular(limit, since=datetime.timedelta(hours=24))
