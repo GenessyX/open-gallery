@@ -12,7 +12,7 @@ from open_gallery.persistence.tables.keys import (
     UserPrimaryKeyType,
 )
 from open_gallery.persistence.tables.users import users
-from open_gallery.persistence.type_decorators.notifications import NotificationSubjectTypeImpl
+from open_gallery.persistence.type_decorators.notifications import NotificationTypeTypeImpl
 from open_gallery.publications.entities import Publication
 
 notifications = Table(
@@ -22,7 +22,7 @@ notifications = Table(
     Column("publication_id", PublicationPrimaryKeyType, PublicationForeignKey()),
     Column("actor_id", UserPrimaryKeyType, UserForeignKey()),
     Column("user_id", UserPrimaryKeyType, UserForeignKey()),
-    Column("subject", NotificationSubjectTypeImpl),
+    Column("type", NotificationTypeTypeImpl),
     *datetime_columns(),
 )
 

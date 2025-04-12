@@ -30,7 +30,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column(
             "subject",
-            open_gallery.persistence.type_decorators.notifications.NotificationSubjectTypeImpl(),
+            open_gallery.persistence.type_decorators.notifications.NotificationTypeTypeImpl(),
             nullable=False,
         ),
         sa.Column(

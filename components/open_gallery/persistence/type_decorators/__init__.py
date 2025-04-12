@@ -1,5 +1,5 @@
 from .datetime import UTCDateTime
 from .identity import UserRoleTypeImpl
-from .notifications import NotificationSubjectTypeImpl
+from .notifications import NotificationTypeTypeImpl
 
-__all__ = ["NotificationSubjectTypeImpl", "UTCDateTime", "UserRoleTypeImpl"]
+__all__ = ["NotificationTypeTypeImpl", "UTCDateTime", "UserRoleTypeImpl"]
