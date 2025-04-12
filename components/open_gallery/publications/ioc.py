@@ -8,6 +8,7 @@ from open_gallery.publications.use_cases.get import GetPublicationUsecase
 from open_gallery.publications.use_cases.get_comments import GetPublicationCommentsUsecase
 from open_gallery.publications.use_cases.get_list import GetPublicationsListUsecase
 from open_gallery.publications.use_cases.get_not_approved import GetNotApprovedPublicationsUsecase
+from open_gallery.publications.use_cases.get_popular import GetPopularPublicationsUsecase
 from open_gallery.publications.use_cases.react import ReactToPublicationUsecase
 from open_gallery.publications.use_cases.update_comment import UpdatePublicationCommentUsecase
 
@@ -16,6 +17,7 @@ class PublicationUsecasesProvider(Provider):
     scope = Scope.REQUEST
 
     get = provide(GetPublicationUsecase)
+    get_popular = provide(GetPopularPublicationsUsecase)
     create = provide(CreatePublicationUsecase)
     add_comment = provide(AddPublicationCommentUsecase)
     get_comments = provide(GetPublicationCommentsUsecase)

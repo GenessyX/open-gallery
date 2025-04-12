@@ -20,3 +20,6 @@ class PublicationRepository(Repository[PublicationId, Publication], ABC):
 
     @abstractmethod
     async def get_with_comment(self, publication_id: PublicationId, comment_id: CommentId) -> Publication | None: ...
+
+    @abstractmethod
+    async def get_popular(self, limit: int) -> list[Publication]: ...

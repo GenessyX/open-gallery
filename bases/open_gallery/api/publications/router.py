@@ -16,6 +16,7 @@ from open_gallery.publications.use_cases.get import GetPublicationUsecase
 from open_gallery.publications.use_cases.get_comments import GetPublicationCommentsUsecase
 from open_gallery.publications.use_cases.get_list import GetPublicationsListUsecase
 from open_gallery.publications.use_cases.get_not_approved import GetNotApprovedPublicationsUsecase
+from open_gallery.publications.use_cases.get_popular import GetPopularPublicationsUsecase
 from open_gallery.publications.use_cases.react import ReactToPublicationUsecase
 from open_gallery.publications.use_cases.update_comment import UpdatePublicationCommentUsecase
 from open_gallery.routing.logging_route import LoggingRoute
@@ -43,6 +44,15 @@ async def get_publciations_list_endpoint(
     if approved:
         return await get_publications_list(pagination.limit, pagination.offset)
     return await get_not_approved_publications(pagination.limit, pagination.offset, actor)
+
+
+@publications_router.get("/popular")
+@inject
+async def get_popular_publications_endpoint(
+    get_popular_publications: FromDishka[GetPopularPublicationsUsecase],
+    limit: Annotated[int, Query()] = 10,
+) -> list[Publication]:
+    return await get_popular_publications(limit=limit)
 
 
 @publications_router.get("/{publication_id}")
