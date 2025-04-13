@@ -8,6 +8,9 @@ from open_gallery.shared.repository import Repository
 
 class PublicationRepository(Repository[PublicationId, Publication], ABC):
     @abstractmethod
+    async def get_detail(self, publication_id: PublicationId) -> Publication | None: ...
+
+    @abstractmethod
     async def get_not_approved(self, limit: int, offset: int) -> list[Publication]: ...
 
     @abstractmethod

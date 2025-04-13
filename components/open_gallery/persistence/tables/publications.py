@@ -176,7 +176,7 @@ def bind_mappers(mapper_registry: registry) -> None:
             "images": relationship(
                 Image,
                 uselist=True,
-                lazy="selectin",
+                lazy="noload",
                 secondary=publication_images,
             ),
             "tags": relationship(

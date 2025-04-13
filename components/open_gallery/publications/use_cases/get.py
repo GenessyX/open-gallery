@@ -17,7 +17,7 @@ class GetPublicationUsecase(Usecase):
             if actor:
                 publication = await uow.publications.get_with_views(publication_id, actor.id)
             else:
-                publication = await uow.publications.get(publication_id)
+                publication = await uow.publications.get_detail(publication_id)
 
             if not publication:
                 raise PublicationNotFoundError(publication_id)
