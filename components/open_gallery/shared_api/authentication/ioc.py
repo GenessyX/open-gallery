@@ -43,9 +43,7 @@ class AuthorizationProvider(Provider):
 
         if not access_token:
             raise AuthorizationError
-        # credentials = await security(request)
-        # if not credentials:
-        #     raise AuthorizationError
+
         decoded_token = jwt_service.decode(access_token)
 
         user = User(
