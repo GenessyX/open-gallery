@@ -10,7 +10,6 @@ from open_gallery.identity.exceptions import AuthorizationError
 from open_gallery.jwt.interface import JWTService
 from open_gallery.shared.entity import EntityId
 from open_gallery.shared.types import SecretValue
-from open_gallery.shared_api.authentication.security import security
 
 
 class AuthorizationProvider(Provider):
@@ -22,10 +21,12 @@ class AuthorizationProvider(Provider):
         request: Request,
         jwt_service: FromDishka[JWTService[AccessTokenPayload]],
     ) -> AccessTokenPayload:
-        credentials = await security(request)
-        if not credentials:
+        access_token = request.cookies.get("access-token")
+
+        if not access_token:
             raise AuthorizationError
-        return jwt_service.decode(credentials.credentials)
+
+        return jwt_service.decode(access_token)
 
     @provide(scope=Scope.REQUEST)
     async def user_role(self, access_token: FromDishka[AccessTokenPayload]) -> UserRole:
@@ -38,10 +39,14 @@ class AuthorizationProvider(Provider):
         jwt_service: FromDishka[JWTService[AccessTokenPayload]],
         session: FromDishka[AsyncSession],
     ) -> User:
-        credentials = await security(request)
-        if not credentials:
+        access_token = request.cookies.get("access-token")
+
+        if not access_token:
             raise AuthorizationError
-        decoded_token = jwt_service.decode(credentials.credentials)
+        # credentials = await security(request)
+        # if not credentials:
+        #     raise AuthorizationError
+        decoded_token = jwt_service.decode(access_token)
 
         user = User(
             id=UserId(EntityId(decoded_token.sub)),

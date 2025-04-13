@@ -2,9 +2,10 @@ from http import HTTPStatus
 from typing import Annotated
 
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import Body, Depends, Path, Query
+from fastapi import Body, Cookie, Depends, Path, Query, Response
 
-from open_gallery.api.identity.schemas import RefreshTokenRequestSchema, RegisterRequestSchema, SetUserRoleRequestSchema
+from open_gallery.api.identity.schemas import RegisterRequestSchema, SetUserRoleRequestSchema
+from open_gallery.api.identity.utils import clear_auth_cookies, set_auth_cookies
 from open_gallery.identity.dtos import TokensPair
 from open_gallery.identity.entities import User, UserId
 from open_gallery.identity.exceptions import (
@@ -14,6 +15,7 @@ from open_gallery.identity.exceptions import (
 )
 from open_gallery.identity.use_cases.get_user_list import GetUsersListUsecase
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
+from open_gallery.identity.use_cases.logout_user import LogoutUserUsecase
 from open_gallery.identity.use_cases.refresh_token import RefreshTokenUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.identity.use_cases.search_users import SearchUsersUsecase
@@ -24,6 +26,7 @@ from open_gallery.notifications.use_cases.get_notifications import GetUserNotifi
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared.pagination import PaginationParams
+from open_gallery.shared.types import SecretValue
 from open_gallery.shared_api.authentication.security import authorized
 from open_gallery.shared_api.exceptions import define_possible_errors
 
@@ -62,10 +65,12 @@ async def register_endpoint(
 )
 @inject
 async def login_endpoint(
+    response: Response,
     request_body: Annotated[RegisterRequestSchema, Body()],
     login: FromDishka[LoginUserUsecase],
-) -> TokensPair:
-    return await login(email=request_body.email, password=request_body.password)
+) -> None:
+    tokens = await login(email=request_body.email, password=request_body.password)
+    set_auth_cookies(response, tokens)
 
 
 @identity_router.get(
@@ -106,10 +111,23 @@ async def verify_user_endpoint(
 )
 @inject
 async def refresh_token_endpoint(
-    request_body: Annotated[RefreshTokenRequestSchema, Body()],
+    response: Response,
     refresh: FromDishka[RefreshTokenUsecase],
-) -> TokensPair:
-    return await refresh(request_body.refresh_token)
+    refresh_token: Annotated[SecretValue[str], Cookie(alias="refresh-token")] = SecretValue(""),  # noqa: B008
+) -> None:
+    tokens = await refresh(refresh_token)
+    set_auth_cookies(response, tokens)
+
+
+@identity_router.post("/logout")
+@inject
+async def logout_user_endpoint(
+    response: Response,
+    logout_user: FromDishka[LogoutUserUsecase],
+    refresh_token: Annotated[SecretValue[str], Cookie(alias="refresh-token")] = SecretValue(""),  # noqa: B008
+) -> None:
+    await logout_user(refresh_token)
+    clear_auth_cookies(response)
 
 
 @identity_router.get("/notifications")

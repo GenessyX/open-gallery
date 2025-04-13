@@ -7,6 +7,7 @@ from open_gallery.identity.services.verification import VerificationService
 from open_gallery.identity.settings import IdentitySettings, JWTSettings
 from open_gallery.identity.use_cases.get_user_list import GetUsersListUsecase
 from open_gallery.identity.use_cases.login_user import LoginUserUsecase
+from open_gallery.identity.use_cases.logout_user import LogoutUserUsecase
 from open_gallery.identity.use_cases.refresh_token import RefreshTokenUsecase
 from open_gallery.identity.use_cases.register_user import RegisterUserUsecase
 from open_gallery.identity.use_cases.search_users import SearchUsersUsecase
@@ -49,6 +50,7 @@ class IdentityUsecasesProvider(Provider):
 
     register = provide(RegisterUserUsecase)
     login = provide(LoginUserUsecase)
+    logout = provide(LogoutUserUsecase)
     verify = provide(VerifyUserUsecase)
     refresh = provide(RefreshTokenUsecase)
     set_role = provide(SetUserRoleUsecase)
