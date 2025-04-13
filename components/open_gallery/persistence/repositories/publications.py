@@ -103,7 +103,12 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
     async def get_comments(self, publication_id: PublicationId, limit: int, offset: int) -> list[Comment]:
         stmt = (
             select(Comment)
-            .where(publication_comments.c.publication_id == publication_id)
+            .where(
+                and_(
+                    publication_comments.c.publication_id == publication_id,
+                    publication_comments.c.parent_id.is_(None),
+                ),
+            )
             .order_by(publication_comments.c.created_at.asc())
             .limit(limit)
             .offset(offset)

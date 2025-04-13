@@ -1,6 +1,6 @@
-from sqlalchemy import JSON, String, Table, func, inspect, select
+from sqlalchemy import JSON, String, Table, and_, func, inspect, select
 from sqlalchemy.event import listen
-from sqlalchemy.orm import QueryContext, column_property, registry, relationship
+from sqlalchemy.orm import QueryContext, backref, column_property, registry, relationship
 
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
@@ -8,6 +8,7 @@ from open_gallery.persistence.tables.base import Column, datetime_columns, mappe
 from open_gallery.persistence.tables.keys import (
     ImageForeignKey,
     ImagePrimaryKeyType,
+    PublicationCommentForeignKey,
     PublicationCommentPrimaryKeyType,
     PublicationForeignKey,
     PublicationPrimaryKeyType,
@@ -54,6 +55,7 @@ publication_comments = Table(
     Column("publication_id", PublicationPrimaryKeyType, PublicationForeignKey()),
     Column("author_id", UserPrimaryKeyType, UserForeignKey()),
     Column("text", String),
+    Column("parent_id", PublicationCommentPrimaryKeyType, PublicationCommentForeignKey(), nullable=True),
     *datetime_columns(),
 )
 
@@ -90,6 +92,21 @@ def bind_mappers(mapper_registry: registry) -> None:
                 User,
                 uselist=False,
                 lazy="joined",
+            ),
+            "children": relationship(
+                Comment,
+                uselist=True,
+                lazy="selectin",
+                primaryjoin=publication_comments.c.id == publication_comments.c.parent_id,
+                remote_side=publication_comments.c.parent_id,
+                backref=backref("parent", remote_side=publication_comments.c.id),
+                cascade="all, delete-orphan",
+                join_depth=20,
+            ),
+            "publication": relationship(
+                Publication,
+                back_populates="comments",
+                uselist=False,
             ),
         },
     )
@@ -128,6 +145,11 @@ def bind_mappers(mapper_registry: registry) -> None:
                 lazy="noload",
                 order_by=publication_comments.c.created_at.desc(),
                 cascade="all, delete-orphan",
+                primaryjoin=and_(
+                    publications.c.id == publication_comments.c.publication_id,
+                    publication_comments.c.parent_id.is_(None),
+                ),
+                back_populates="publication",
             ),
             "comments_count": column_property(
                 select(func.count(publication_comments.c.author_id))

@@ -4,7 +4,7 @@ from typing import Any, NewType
 from open_gallery.identity.entities import User
 from open_gallery.images.entities import Image
 from open_gallery.notifications.entities import CommentNotification, LikeNotification
-from open_gallery.publications.exceptions import InvalidLikeError, InvalidUnlikeError
+from open_gallery.publications.exceptions import CommentNotFoundError, InvalidLikeError, InvalidUnlikeError
 from open_gallery.shared.entity import Entity, EntityId, SubEntity
 from open_gallery.tags.entities import Tag
 
@@ -17,6 +17,8 @@ class Comment(Entity):
     id: CommentId = field(default_factory=lambda: CommentId(EntityId.generate()))  # pyright: ignore[reportIncompatibleVariableOverride]
     text: str
     author: User
+    children: list["Comment"] = field(default_factory=list)
+    publication: "Publication" = field(repr=False)
 
 
 @dataclass(kw_only=True)
@@ -91,10 +93,17 @@ class Publication(Entity):
     def get_comment(self, comment_id: CommentId) -> Comment | None:
         return next((comment for comment in self.comments if comment.id == comment_id), None)
 
-    def add_comment(self, text: str, actor: User) -> Comment:
-        comment = Comment(text=text, author=actor)
-        self.comments.append(comment)
-        self.comments_count += 1
+    def add_comment(self, parent_id: CommentId | None, text: str, actor: User) -> Comment:
+        comment = Comment(text=text, author=actor, publication=self)
+
+        if not parent_id:
+            self.comments.append(comment)
+            self.comments_count += 1
+        else:
+            parent_comment = self.get_comment(parent_id)
+            if not parent_comment:
+                raise CommentNotFoundError(comment_id=parent_id)
+            parent_comment.children.append(comment)
         if actor != self.created_by:
             notification = CommentNotification(publication=self, comment=comment, actor=actor)
             self.created_by.notify(notification)

@@ -88,6 +88,7 @@ async def add_publication_comment_endpoint(
 ) -> Comment:
     return await add_comment(
         publication_id,
+        request_body.parent_id,
         request_body.text,
         actor,
     )
