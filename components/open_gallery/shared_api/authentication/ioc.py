@@ -33,6 +33,35 @@ class AuthorizationProvider(Provider):
         return access_token.role
 
     @provide(scope=Scope.REQUEST)
+    async def optional_user(
+        self,
+        request: Request,
+        jwt_service: FromDishka[JWTService[AccessTokenPayload]],
+        session: FromDishka[AsyncSession],
+    ) -> User | None:
+        access_token = request.cookies.get("access-token")
+
+        if not access_token:
+            return None
+
+        decoded_token = jwt_service.decode(access_token)
+
+        user = User(
+            id=UserId(EntityId(decoded_token.sub)),
+            email=decoded_token.email,
+            password=SecretValue(""),
+            role=decoded_token.role,
+            verified=decoded_token.verified,
+        )
+
+        make_transient_to_detached(user)
+        await session.merge(user, load=False)
+
+        session.identity_map.add(inspect(user))  # type: ignore[arg-type]
+
+        return user
+
+    @provide(scope=Scope.REQUEST)
     async def user(
         self,
         request: Request,

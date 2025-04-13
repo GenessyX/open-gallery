@@ -6,6 +6,7 @@ from fastapi import Body, Depends, Path, Query
 
 from open_gallery.api.publications.schemas import AddPublicationCommentRequestSchema, ReactToPublicationRequestSchema
 from open_gallery.identity.entities import User
+from open_gallery.identity.exceptions import AuthorizationError
 from open_gallery.publications.dtos import CreatePublicationDto
 from open_gallery.publications.entities import Comment, CommentId, Publication, PublicationId
 from open_gallery.publications.use_cases.add_comment import AddPublicationCommentUsecase
@@ -22,7 +23,7 @@ from open_gallery.publications.use_cases.update_comment import UpdatePublication
 from open_gallery.routing.logging_route import LoggingRoute
 from open_gallery.routing.router import APIRouter
 from open_gallery.shared.pagination import PaginationParams
-from open_gallery.shared_api.authentication.security import authorized
+from open_gallery.shared_api.authentication.security import authorized, optionally_authorized
 
 publications_router = APIRouter(
     prefix="/publications",
@@ -35,7 +36,7 @@ publications_router = APIRouter(
 @inject
 async def get_publciations_list_endpoint(
     pagination: Annotated[PaginationParams, Depends()],
-    actor: Annotated[User, Depends(authorized)],
+    actor: Annotated[User | None, Depends(optionally_authorized)],
     get_publications_list: FromDishka[GetPublicationsListUsecase],
     get_not_approved_publications: FromDishka[GetNotApprovedPublicationsUsecase],
     *,
@@ -43,6 +44,8 @@ async def get_publciations_list_endpoint(
 ) -> list[Publication]:
     if approved:
         return await get_publications_list(pagination.limit, pagination.offset)
+    if not actor:
+        raise AuthorizationError
     return await get_not_approved_publications(pagination.limit, pagination.offset, actor)
 
 
@@ -59,7 +62,7 @@ async def get_popular_publications_endpoint(
 @inject
 async def get_publciation_endpoint(
     publication_id: Annotated[PublicationId, Path()],
-    actor: Annotated[User, Depends(authorized)],
+    actor: Annotated[User | None, Depends(optionally_authorized)],
     get_publication: FromDishka[GetPublicationUsecase],
 ) -> Publication:
     return await get_publication(publication_id, actor)

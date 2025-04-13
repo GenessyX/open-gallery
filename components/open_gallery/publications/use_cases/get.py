@@ -12,12 +12,18 @@ class GetPublicationUsecase(Usecase):
         self._uow = uow
 
     @override
-    async def __call__(self, publication_id: PublicationId, actor: User) -> Publication:
+    async def __call__(self, publication_id: PublicationId, actor: User | None) -> Publication:
         async with self._uow as uow:
-            publication = await uow.publications.get_with_views(publication_id, actor.id)
+            if actor:
+                publication = await uow.publications.get_with_views(publication_id, actor.id)
+            else:
+                publication = await uow.publications.get(publication_id)
 
             if not publication:
                 raise PublicationNotFoundError(publication_id)
+
+            if not actor:
+                return publication
 
             already_viewed = next((view for view in publication.views if view.user == actor), None)
             if not already_viewed:

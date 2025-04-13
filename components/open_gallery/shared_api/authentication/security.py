@@ -15,6 +15,13 @@ async def authorized(
 
 
 @inject
+async def optionally_authorized(
+    user: FromDishka[User | None],
+) -> User | None:
+    return user
+
+
+@inject
 async def user_role(
     user_role: FromDishka[UserRole],
 ) -> UserRole:
