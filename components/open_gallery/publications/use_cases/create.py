@@ -17,6 +17,8 @@ class CreatePublicationUsecase:
             if not preview_image or len(images) != len(create_dto.linked_image_ids):
                 raise InvalidImagesInPublicationError
 
+            references = await uow.publications.get_many(create_dto.reference_publication_ids)
+
             publication = Publication(
                 title=create_dto.title,
                 images=images,
@@ -24,6 +26,7 @@ class CreatePublicationUsecase:
                 created_by=actor,
                 document=create_dto.document,
                 approved_by=None,
+                references=references,
             )
 
             await uow.publications.save(publication)

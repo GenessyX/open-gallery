@@ -50,9 +50,10 @@ class Publication(Entity):
 
     tags: list[Tag] = field(default_factory=list)
 
-    references: list["Publication"] = field(default_factory=list, repr=False)
+    references: list["Publication"] = field(default_factory=list)
 
     def __post_init__(self) -> None:
+        super().__post_init__()
         self.views_count = len(self.views)
 
     def approve(self, actor: User) -> None:
