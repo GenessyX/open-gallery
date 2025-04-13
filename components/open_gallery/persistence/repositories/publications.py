@@ -25,6 +25,8 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
     async def get_detail(self, publication_id: PublicationId) -> Publication | None:
         stmt = (select(Publication).where(publications.c.id == publication_id)).options(
             selectinload(Publication.images),  # type: ignore[arg-type]
+            selectinload(Publication.references),  # type: ignore[arg-type]
+            selectinload(Publication.tags),  # type: ignore[arg-type]
         )
 
         result = await self._session.execute(stmt)
@@ -70,6 +72,8 @@ class SQLAlchemyPublicationRepository(SQLAlchemyRepository[PublicationId, Public
         ).options(
             contains_eager(Publication.views),  # type: ignore[arg-type]
             selectinload(Publication.images),  # type: ignore[arg-type]
+            selectinload(Publication.references),  # type: ignore[arg-type]
+            selectinload(Publication.tags),  # type: ignore[arg-type]
         )
 
         result = await self._session.execute(stmt)

@@ -50,6 +50,8 @@ class Publication(Entity):
 
     tags: list[Tag] = field(default_factory=list)
 
+    references: list["Publication"] = field(default_factory=list, repr=False)
+
     def __post_init__(self) -> None:
         self.views_count = len(self.views)
 

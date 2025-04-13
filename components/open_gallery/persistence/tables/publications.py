@@ -33,6 +33,13 @@ publications = Table(
     *datetime_columns(),
 )
 
+publication_references = Table(
+    "publication_references",
+    mapper_registry.metadata,
+    Column("source_id", PublicationPrimaryKeyType, PublicationForeignKey(), primary_key=True),
+    Column("target_id", PublicationPrimaryKeyType, PublicationForeignKey(), primary_key=True),
+)
+
 publication_images = Table(
     "publication_images",
     mapper_registry.metadata,
@@ -182,8 +189,16 @@ def bind_mappers(mapper_registry: registry) -> None:
             "tags": relationship(
                 Tag,
                 uselist=True,
-                lazy="selectin",
+                lazy="noload",
                 secondary=publication_tags,
+            ),
+            "references": relationship(
+                Publication,
+                uselist=True,
+                lazy="noload",
+                secondary=publication_references,
+                primaryjoin=publications.c.id == publication_references.c.source_id,
+                secondaryjoin=publication_references.c.target_id == publications.c.id,
             ),
         },
     )
