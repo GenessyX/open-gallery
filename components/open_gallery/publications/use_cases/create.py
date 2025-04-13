@@ -18,6 +18,7 @@ class CreatePublicationUsecase:
                 raise InvalidImagesInPublicationError
 
             references = await uow.publications.get_many(create_dto.reference_publication_ids)
+            tags = await uow.tags.get_many(create_dto.tag_ids)
 
             publication = Publication(
                 title=create_dto.title,
@@ -27,6 +28,7 @@ class CreatePublicationUsecase:
                 document=create_dto.document,
                 approved_by=None,
                 references=references,
+                tags=tags,
             )
 
             await uow.publications.save(publication)

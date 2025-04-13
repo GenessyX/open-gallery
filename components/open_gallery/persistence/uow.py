@@ -53,10 +53,12 @@ class SQLAlchemyPublicationsUnitOfWork(SQLAlchemyUnitOfWork, PublicationsUnitOfW
         session: AsyncSession,
         publication_repository: PublicationRepository,
         image_repository: ImageRepository,
+        tag_repository: TagRepository,
     ) -> None:
         super().__init__(session)
         self.publications = publication_repository
         self.images = image_repository
+        self.tags = tag_repository
 
 
 class SQLAlchemyTagsUnitOfWork(SQLAlchemyUnitOfWork, TagsUnitOfWork):

@@ -4,6 +4,7 @@ from typing import Any
 
 from open_gallery.images.entities import ImageId
 from open_gallery.publications.entities import PublicationId
+from open_gallery.tags.entities import TagId
 
 
 @dataclass(kw_only=True)
@@ -13,6 +14,7 @@ class CreatePublicationDto:
     preview_image_id: ImageId
     document: Any
     reference_publication_ids: list[PublicationId]
+    tag_ids: list[TagId]
 
 
 class ReactionType(str, Enum):
